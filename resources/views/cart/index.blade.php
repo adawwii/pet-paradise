@@ -99,10 +99,11 @@
                     <span>Total</span>
                     <span>${{ number_format($total, 2) }}</span>
                 </div>
-
+                <form action="{{ route('checkout') }}" method="get">
                 <button class="w-full mt-6 bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition">
                     Proceed to Checkout
                 </button>
+                </form>
 
                 <a href="{{ route('shop') }}"
                    class="block text-center mt-4 text-indigo-600 hover:underline">

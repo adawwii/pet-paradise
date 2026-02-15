@@ -3,9 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CheckoutController;
 
 //show home page
 Route::get('/',[ProductController::class,'index'])->name('home');
@@ -43,3 +45,9 @@ Route::get('/cart',[CartController::class,'show'])->name('cart.show');
 Route::put('/update/cart/{cartItem}',[CartController::class,'update'])->name('cart.update');
 //remove cart item
 Route::delete('/remove/cart/{cartItem}',[CartController::class,'remove'])->name('cart.remove');
+//show checkout page
+Route::get('/checkout',[CheckoutController::class,'show'])->name('checkout');
+//procced payment
+Route::post('/payment',[CheckoutController::class,'payment'])->name('payment');
+//show single order 
+Route::get('/order',[OrderController::class,'show'])->name('orders.customer');

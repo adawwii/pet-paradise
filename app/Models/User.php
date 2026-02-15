@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Models\Carts;
 use App\Models\Order;
 use App\Models\Review;
+use App\Models\Address;
 use App\Models\Product;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -63,6 +64,9 @@ class User extends Authenticatable
     }
     public function cart() {
         return $this->hasOne(Carts::class);
+    }
+    public function addresses() {
+        return $this->hasMany(Address::class);
     }
         
 
