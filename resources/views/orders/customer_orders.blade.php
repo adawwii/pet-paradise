@@ -15,7 +15,7 @@
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-800">
-                            Order #{{ $order->id }}
+                            Order {{ $order->code }}
                         </h2>
                         <p class="text-gray-500 text-sm">
                             Placed on {{ $order->created_at->format('d M Y') }}

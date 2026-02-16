@@ -18,6 +18,10 @@ class CheckoutController extends Controller
     }
     //payment transaction
     public function payment(Request $request) {
+        $user=auth()->user();
+        if(!$user->cart || $user->cart->cartItems->isEmpty()) {
+            throw new Exception('cart is empty');
+        }
         //validating shipping address
         $validator = Validator::make($request->all(), [
             'street_address' => 'required|string|max:255',
@@ -34,59 +38,71 @@ class CheckoutController extends Controller
              ],422);
          }
          $formFields=$validator->validated();
+         $amount=$user->cart->cartItems->sum(function($item){
+             return $item->product->price * $item->quantity;
+         });
          
         try {
+            $order=  DB::transaction(function() use ($user,$formFields,$amount) {
             
-          $response=  DB::transaction(function() use ($request,$formFields) {
-            
-                //stripe payment configuration
-               Stripe::setApiKey(config('services.stripe.secret'));
-                $amount=auth()->user()->cart->cartItems->sum(function($item){
-                    return $item->product->price * $item->quantity;
-                });
-                $paymentIntent=PaymentIntent::create([
-                    'amount'=>$amount * 100, //cents
-                    'currency'=>'usd',
-                    'payment_method'=>$request->payment_method,
-                    'confirm'=>true,
-                    'automatic_payment_methods' => [
-                        'enabled' => true,
-                        'allow_redirects' => 'never',
-                        ],
-                ]);
                 //inserting address
-                $address=auth()->user()->addresses()->create($formFields);
+                $address=$user->addresses()->create($formFields);
                 //inserting cart into orders
-                $total=0;
-                foreach(auth()->user()->cart->cartItems as $item) {
-                    $subtotal = $item->product->price * $item->quantity;
-                        $total += $subtotal;
-                }
-                $order=auth()->user()->orders()->create([
+                
+                $order=$user->orders()->create([
                     'address_id'=>$address->id,
-                    'total'=> $total,
-                    'status'=>'processing'
+                    'total'=> $amount,
+                    'status'=>'pending'
                 ]);
                 //inserting cartItems into orderItems
-                foreach(auth()->user()->cart->cartItems as $item){
+                foreach($user->cart->cartItems as $item){
                     $order->orderItems()->create([
                         'product_id'=>$item->product->id,
                         'quantity'=>$item->quantity
                     ]);
                 }
-                //empty cart
-                auth()->user()->cart->cartItems()->delete();
-                auth()->user()->cart()->delete();
-                //return
-                 return response()->json(['success'=>true]);
-
+                return $order;
                 });
-                // return back()->with('success',"success transaction");
-                // return response()->json(['success'=>true]);
-                return $response;
+               
+
+                
+            //stripe payment configuration
+           Stripe::setApiKey(config('services.stripe.secret'));
+            $paymentIntent=PaymentIntent::create([
+                'amount'=>$amount * 100, //cents
+                'currency'=>'usd',
+                'payment_method'=>$request->payment_method,
+                'confirm'=>true,
+                'metadata' =>[
+                        'order_id' => $order->id,
+                        'user_id' => $user->id,
+                    ],
+                'automatic_payment_methods' => [
+                    'enabled' => true,
+                    'allow_redirects' => 'never',
+                    ],
+            ]);
+            if($paymentIntent->status !== 'succeeded')
+                {
+                    throw new Exception('payment failed or need more action!');
+                }
+            $response=  DB::transaction(function() use ($user,$order) {
+                //updating order status after successful payment
+                $order->update([
+                    'status'=>'processing'
+                ]);
+                $user->cart->cartItems()->delete();
+                $user->cart()->delete();
+          //return
+                 return 'success';
+                });
+                if($response !== 'success'){
+                    throw new Exception('Payment failed , facing problem with creating your order');
+                }
+                return response()->json(['success'=>true]);
 
         } catch (Exception $e) {
-            // return back()->with('error','something went wrong');
+
             return response()->json([
             'success' => false,
             'validation_error' =>false,
