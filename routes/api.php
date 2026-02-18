@@ -13,6 +13,7 @@ Route::get('/user', function (Request $request) {
 Route::get('/productsApi',[ProductController::class,'productsApi']);
 Route::get('/productsApi/{pId}',[ProductController::class,'detailsApi']);
 Route::get('/categories',[CategoryController::class,'showApi']);
+Route::post('/stripe/webhook',[CheckoutController::class,'webhook']);
 // Route::post('/payment',[CheckoutController::class,'payment'])->name('payment');
 
 

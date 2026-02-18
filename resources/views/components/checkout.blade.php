@@ -174,17 +174,14 @@ form.addEventListener("submit", async function(e) {
         body: formData
     })
     .then(res => res.json())
-    .then(data => {
+    .then(async data => {
         document.getElementById("street_address-error").textContent='';
             document.getElementById("city-error").textContent='';
             document.getElementById("district-error").textContent='';
             document.getElementById("building-error").textContent='';
             document.getElementById("apartment-error").textContent='';
             document.getElementById("card-errors").textContent = '';
-        if(data.success){
-            
-            window.location.href = "{{ route('orders.customer') }}";
-        }else if(data.validation_error) {
+            if(data.validation_error) {
             
              Object.keys(data.errors).forEach(field => {
             let errorElement = document.getElementById(field + '-error');
@@ -193,6 +190,20 @@ form.addEventListener("submit", async function(e) {
             }
         });
         return;
+        }
+        if(data.client_secret) {
+            const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(data.client_secret, {
+                payment_method: paymentMethod.id
+            });
+
+            if (confirmError) {
+                document.getElementById("card-errors").textContent = confirmError.message;
+                return;
+            }
+            if (paymentIntent.status === "succeeded") {
+                window.location.href = "{{ route('orders.customer') }}";
+            }
+            
         } else {
             document.getElementById("card-errors").textContent = data.message;
         }
