@@ -201,7 +201,7 @@ form.addEventListener("submit", async function(e) {
                 return;
             }
             if (paymentIntent.status === "succeeded") {
-                window.location.href = "{{ route('orders.customer') }}";
+                window.location.href = "{{ route('order.processing') }}";
             }
             
         } else {

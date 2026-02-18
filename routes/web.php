@@ -51,3 +51,7 @@ Route::get('/checkout',[CheckoutController::class,'show'])->name('checkout');
 Route::post('/payment',[CheckoutController::class,'payment'])->name('payment');
 //show single order 
 Route::get('/order',[OrderController::class,'show'])->name('orders.customer');
+//
+Route::get('/order-processing',[OrderController::class,'orderProcessing'])->name('order.processing');
+//
+Route::get('/check-order',[OrderController::class,'check']);

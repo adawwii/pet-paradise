@@ -57,6 +57,11 @@ class CheckoutController extends Controller
                         'apartment' => $formFields['apartment'],
                     ],
             ]);
+
+                session([
+                    'last_payment_intent'=>$paymentIntent->id
+                ]);
+
                 return response()->json([
                     'client_secret'=> $paymentIntent->client_secret
                     ]);
