@@ -4,7 +4,7 @@
     <div class="flex-1 flex flex-col">
 
         <!-- Top Navbar -->
-        <header class="bg-white shadow p-4 flex justify-between items-center">
+        {{-- <header class="bg-white shadow p-4 flex justify-between items-center">
             <button id="menuBtn" class="md:hidden text-gray-700">
                 ☰
             </button>
@@ -14,7 +14,7 @@
             <div>
                 <span class="text-gray-600">Admin</span>
             </div>
-        </header>
+        </header> --}}
 
         <!-- Content -->
         <main class="p-6">

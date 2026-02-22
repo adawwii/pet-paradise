@@ -4,8 +4,8 @@
   <h2 class="text-center text-3xl font-bold text-orange-500 mb-10">
     Shop Products
   </h2>
-@include('partials._search');
-@include('partials._sort');
+@include('partials._search')
+@include('partials._sort')
   <!-- Products Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 

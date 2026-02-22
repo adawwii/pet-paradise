@@ -62,6 +62,10 @@ Route::get('/order',[OrderController::class,'show'])->name('orders.customer');
 Route::get('/order-processing',[OrderController::class,'orderProcessing'])->name('order.processing');
 //
 Route::get('/check-order',[OrderController::class,'check']);
-});
 //admin dashboard
-Route::get('/dashboard',[AdminController::class, 'index']);
+Route::get('/dashboard',[AdminController::class, 'index'])->name('dashboard')->middleware('can:is-admin');
+//admin logout
+Route::post('/admin/logout',[AdminController::class,'logout'])->name('admin.logout');
+});
+Route::get('/admin/login',[AdminController::class,'showLogin'])->name('admin.login');
+Route::post('/admin/authenticate',[AdminController::class,'authenticate'])->name('admin.authenticate');
