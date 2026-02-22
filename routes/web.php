@@ -1,13 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 //show home page
 Route::get('/',[ProductController::class,'index'])->name('home');
@@ -62,3 +63,5 @@ Route::get('/order-processing',[OrderController::class,'orderProcessing'])->name
 //
 Route::get('/check-order',[OrderController::class,'check']);
 });
+//admin dashboard
+Route::get('/dashboard',[AdminController::class, 'index']);
