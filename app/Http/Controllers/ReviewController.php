@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ReviewController extends Controller
 {
     //store Review
     public function store(Request $request) {
+        $response = Gate::inspect('create',Review::class);
+        if($response->denied()) {
+            return back()->with('error',$response->message());
+        }
         $formData=$request->validate([
             'rating'=>'required',
             'comment'=>'required'

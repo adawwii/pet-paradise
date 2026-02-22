@@ -65,6 +65,9 @@ class ProductController extends Controller
         ->withAvg('reviews','rating')
         ->withCount('reviews')
         ->find($id);
+        if(!$product) {
+            return redirect()->route('shop')->with("info","Product you're looking for does not exist!");
+        }
         $reviews=Review::with('user')
         ->where('product_id',$product->id)
         ->latest()
@@ -75,8 +78,8 @@ class ProductController extends Controller
         
 
 
-        //api Test for show products shop route
-        public function productsApi(Request $request) {
+    //api Test for show products shop route
+    public function productsApi(Request $request) {
             $resultQuery=[
                 'products'=>Product::with('category')
                 ->with('reviews')
@@ -103,19 +106,19 @@ class ProductController extends Controller
             // $resultJson=json_encode($resultQuery);
             return response()->json($resultQuery,200);
             // return $resultJson;
-        }
-        //api test for single product Route
-        public function detailsApi($id){
-        $product=Product::with('category')
-        ->withAvg('reviews','rating')
-        ->withCount('reviews')
-        ->find($id);
-        $reviews=Review::with('user')
-        ->where('product_id',$product->id)
-        ->latest()
-        ->paginate(2);
-        $data=[$product,$reviews];
-        return response()->json($data,200);
-            }
+    }
+    //api test for single product Route
+    public function detailsApi($id){
+            $product=Product::with('category')
+            ->withAvg('reviews','rating')
+            ->withCount('reviews')
+            ->find($id);
+            $reviews=Review::with('user')
+            ->where('product_id',$product->id)
+            ->latest()
+            ->paginate(2);
+            $data=[$product,$reviews];
+               return response()->json($data,200);
+    }
 
  }

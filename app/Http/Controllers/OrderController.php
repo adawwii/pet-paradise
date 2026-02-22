@@ -4,43 +4,52 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
     //show customer orders
     public function show() {
+      $response = Gate::inspect('viewAny',Order::class);
+      if($response->denied()) {
+        return redirect()->route('home')->with('error',$response->message());
+      }
         $orders=auth()->user()->orders;
         return view('orders.customer_orders',compact('orders'));
     }
     //show order processing page
     public function orderProcessing(){
          if (!session()->has('last_payment_intent')) {
-        return redirect()->route('home');
-    }
+        return redirect()->route('home'); 
+        }
+          
 
-    return view('orders.order-processing');
+     return view('orders.order-processing');
     }
     //checking order created 
     public function check() {
-    $paymentIntentId = session('last_payment_intent');
+        if (!session()->has('last_payment_intent')) {
+        return redirect()->route('home'); 
+        }
+     $paymentIntentId = session('last_payment_intent');
 
-    if (!$paymentIntentId) {
+      if (!$paymentIntentId) {
         return response()->json(['exists' => false]);
-    }
+        }
 
-    $order = Order::where('stripe_payment_intent_id', $paymentIntentId)->first();
+     $order = Order::where('stripe_payment_intent_id', $paymentIntentId)->first();
 
-    if ($order) {
+      if ($order) {
         session()->forget('last_payment_intent'); // clean session
 
-        return response()->json([
+         return response()->json([
             'exists' => true
-        ]);
-    }
+         ]);
+       }
 
-    return response()->json([
+     return response()->json([
         'exists' => false
-    ]);
-}
+      ]);
+    }
 
 }

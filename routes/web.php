@@ -17,16 +17,22 @@ Route::get('/shop',[ProductController::class,'show'])->name('shop');
 Route::get('/shop/{pId}',[ProductController::class,'details']);
 //show categories page
 Route::get('/categories',[CategoryController::class,'show'])->name('category');
-//show customer user register page
-Route::get('/register',[UserController::class,'show'])->name('register');
-//store new customer user
-Route::post('/user',[UserController::class,'store']);
+//unauthenticated users only
+Route::middleware(['guest'])
+->group(function() {
+    //show customer user register page
+    Route::get('/register',[UserController::class,'show'])->name('register');
+    //store new customer user
+    Route::post('/user',[UserController::class,'store']);
+    //show customer user login page
+    Route::get('/login',[UserController::class,'login'])->name('login');
+    //login authenticate customer user
+    Route::post('/authenticate',[UserController::class,'authenticate']);
+});
+Route::middleware(['auth'])
+->group(function() {
 //logout customer user
 Route::post('/logout',[UserController::class,'logout']);
-//show customer user login page
-Route::get('/login',[UserController::class,'login'])->name('login');
-//login authenticate customer user
-Route::post('/authenticate',[UserController::class,'authenticate']);
 //show customer user profile page
 Route::get('/user/profile',[UserController::class,'profile'])->name('profile');
 //update customer user profile image
@@ -55,3 +61,4 @@ Route::get('/order',[OrderController::class,'show'])->name('orders.customer');
 Route::get('/order-processing',[OrderController::class,'orderProcessing'])->name('order.processing');
 //
 Route::get('/check-order',[OrderController::class,'check']);
+});

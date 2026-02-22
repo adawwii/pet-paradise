@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Carts;
 use App\Models\Product;
-use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CartController extends Controller
 {
     //add to card
     public function add(Product $product) {
+        $response = Gate::inspect('create',Carts::class);
+        if ($response->denied()) {
+            return back()->with('error',$response->message());
+        }
        $user=auth()->user();
        //check the user has a cart
        $cart=$user->cart ?? Carts::create([
@@ -34,20 +39,34 @@ class CartController extends Controller
     }
     //show cart
     public function show() {
-        $cart=auth()->user()->cart;
+        $user=auth()->user();
+        $response = Gate::inspect('viewAny',Carts::class);
+        if ($response->denied()) {
+            return redirect()->route('home')->with('error',$response->message());
+            }
+            $cart=$user->cart;
         return view('cart.index',compact('cart'));
     }
     //update cart item
     public function update(Request $request , CartItem $cartItem) {
+        $response = Gate::inspect('update',auth()->user()->cart);
+        if ($response->denied()) {
+            return back()->with('error',$response->message());
+        }
         if(blank($request->quantity)||$request->quantity==0){
             return back()->with('info','minimum quantity is one!');
         }
-        $quantity=['quantity'=>$request->quantity];
-        $cartItem->update($quantity);
-        return back();
+      $quantity=['quantity'=>$request->quantity];
+      $cartItem->update($quantity);
+       return back();
     }
     //delete cart item
     public function remove(CartItem $cartItem){
+
+        $response = Gate::inspect('delete',auth()->user()->cart);
+        if ($response->denied()) {
+            return back()->with('error',$response->message());
+        }
         $cart=$cartItem->cart;
         $cartItem->delete();
         if($cart->cartItems->count()>=1){

@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\User;
 use Exception;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 use Stripe\Webhook;
 
 
@@ -17,6 +18,8 @@ class CheckoutController extends Controller
 {
      //payment transaction
     public function payment(Request $request) {
+        
+
         $user=auth()->user();
         if(!$user->cart || $user->cart->cartItems->isEmpty()) {
             throw new Exception('cart is empty');
@@ -37,6 +40,15 @@ class CheckoutController extends Controller
              ],422);
          }
          $formFields=$validator->validated();
+         $response = Gate::inspect('create',Order::class);
+         if($response->denied()) {
+
+             return response()->json([
+            'success' => false,
+            'validation_error' =>false,
+            'message' => $response->message()
+        ]);
+         }
          $amount=$user->cart->cartItems->sum(function($item){
              return $item->product->price * $item->quantity;
          });
@@ -77,26 +89,25 @@ class CheckoutController extends Controller
 
     }
 // payment stripe webhook
-public function webhook(Request $request)
-{
-    Stripe::setApiKey(config('services.stripe.secret'));
+    public function webhook(Request $request) {
+        Stripe::setApiKey(config('services.stripe.secret'));
     
-    $payload = $request->getContent();
-    $sigHeader = $request->header('Stripe-Signature');
-    $endpointSecret = config('services.stripe.webhook_secret');
+        $payload = $request->getContent();
+        $sigHeader = $request->header('Stripe-Signature');
+        $endpointSecret = config('services.stripe.webhook_secret');
 
-    try {
+         try {
         $event = Webhook::constructEvent(
             $payload,
             $sigHeader,
             $endpointSecret
         );
-    } catch (\Exception $e) {
+         } catch (\Exception $e) {
         return response()->json(['error' => 'Invalid signature'], 400);
-    }
+        }
 
-    // after successful payment
-    if ($event->type === 'payment_intent.succeeded') {
+        // after successful payment
+        if ($event->type === 'payment_intent.succeeded') {
 
         $paymentIntent = $event->data->object;
 
@@ -147,13 +158,17 @@ public function webhook(Request $request)
             $user->cart->cartItems()->delete();
             $user->cart()->delete();
         });
-    }
+         }
 
-    return response()->json(['status' => 'success']);
-}
+         return response()->json(['status' => 'success']);
+    }
 
     //show checkout page
     public function show() {
+        $response = Gate::inspect('view',auth()->user()->cart);
+         if($response->denied()) {
+            return redirect()->route('home')->with('error',$response->message());
+         }
         return view('components.checkout');
     }
    

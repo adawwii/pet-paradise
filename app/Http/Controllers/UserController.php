@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
@@ -61,6 +62,9 @@ class UserController extends Controller
     }
     //show Profile
     public function profile() {
+        // if(Gate::denies('is-employee')) {
+        //     return redirect()->route('home')->with('error','unAuthourized Action!!!');
+        // }
         return view('user.profile');
     }
     //Update image
