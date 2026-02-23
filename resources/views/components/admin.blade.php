@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> 
 </head>
 
 <body class="bg-gray-100">
+@include('components.flash')
 
 <div class="flex">
 
@@ -25,13 +27,13 @@
         <!-- Navigation -->
         <nav class="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
 
-            <a href="#"
+            <a href="{{ route('dashboard') }}"
                class="flex items-center gap-3 p-2 rounded hover:bg-gray-800">
                 <span>🏠</span>
                 <span class="link-text">Dashboard</span>
             </a>
 
-            <a href="#"
+            <a href="{{ route('admin.orders') }}"
                class="flex items-center gap-3 p-2 rounded hover:bg-gray-800">
                 <span>📦</span>
                 <span class="link-text">Orders</span>
@@ -67,6 +69,7 @@
                 <span>🚪</span>
                 <span class="link-text">Logout</span>
             </button>
+            </form>
         </div>
 
     </aside>

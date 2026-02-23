@@ -24,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Model::unguard();
+
         //
         Gate::define('is-customer',function(User $user) {
             return $user->role === 'customer';
@@ -34,7 +36,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('is-admin',function(User $user) {
             return $user->role === 'admin';
         });
-        Model::unguard();
         Paginator::useTailwind();
         Authenticate::redirectUsing(function ($request) {
         session()->flash('error', 'Access denied! Authentication required.');

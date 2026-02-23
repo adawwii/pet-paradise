@@ -51,5 +51,70 @@ class OrderController extends Controller
         'exists' => false
       ]);
     }
+    //show all orders for admin
+    public function orders(Request $request) {
+      $response = Gate::inspect('viewAny',Order::class);
+      if($response->denied()) {
+        return redirect()->route('admin.login')->with('error',$response->message());
+      }
+      $orders=Order::filter($request->only('search','status'))->latest()->paginate(8)->withQueryString();
+      return view('orders.admin_orders',compact('orders')); 
+    }
+    //update order status by admin
+    public function updateStatus(Request $request,Order $order) {
+      $response = Gate::inspect('updateAny',Order::class);
+      if($response->denied()) {
+        session()->flash('error',$response->message());
+        return response()->json(['error' => $response->message()]);
+      }
+      if($order->status === 'completed' || $order->status === 'cancelled' || $order->status === 'pending') {
+        session()->flash('error','You cannot update status of completed, cancelled or pending orders');
+        return response()->json(['error' => 'You cannot update status of completed, cancelled or pending orders']);
+      }
+      $status= $request->validate([
+        'status'=>'required|string|in:pending,processing,shipped,completed,cancelled'
+      ]);
+      
+      $order->update(['status'=>$status['status']]);
+      session()->flash('success','Order status updated successfully');
+      return response()->json(['message'=>'Order status updated successfully']);
+    }
+    //export orders to csv
+    public function export() {
+      $response = Gate::inspect('viewAny',Order::class);
+      if($response->denied()) {
+        return redirect()->route('admin.login')->with('error',$response->message());
+      }
+      $fileName = 'orders.csv';
+      $orders = Order::with('user')->get();
+      $headers = [
+          'Content-Type' => 'text/csv',
+          'Content-Disposition' => "attachment; filename=\"$fileName\"",
+      ];
+      $callback = function() use ($orders) {
+          $file = fopen('php://output', 'w');
+          fputcsv($file, ['ID', 'Customer', 'Total Amount', 'Status', 'Created At']);
+          foreach ($orders as $order) {
+              fputcsv($file, [
+                  $order->code,
+                  $order->user->name,
+                  $order->total,
+                  $order->status,
+                  $order->created_at,
+              ]);
 
+              }
+          fclose($file);
+         };
+      return response()->stream($callback, 200, $headers);
+    }
+    //show single order details for admin
+    public function singleOrder(Order $order) {
+      $response = Gate::inspect('viewAny', Order::class);
+      if($response->denied()) {
+        return redirect()->route('admin.login')->with('error',$response->message());
+      }
+      $user = $order->user;
+      return view('orders.admin_single_order',compact('order','user'));
+     }
 }

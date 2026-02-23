@@ -39,7 +39,7 @@ class AdminController extends Controller
                 auth()->logout();
                 return redirect()->route('admin.login')->with('error','Access denied! Admins only.');
             }
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard')->with('success','Login successfully!');
         }
     }
     //logout admin user
@@ -47,6 +47,6 @@ class AdminController extends Controller
         auth()->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('admin.login');
+        return redirect()->route('admin.login')->with('success','Logged out successfully!');
     }
 }

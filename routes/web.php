@@ -66,6 +66,14 @@ Route::get('/check-order',[OrderController::class,'check']);
 Route::get('/dashboard',[AdminController::class, 'index'])->name('dashboard')->middleware('can:is-admin');
 //admin logout
 Route::post('/admin/logout',[AdminController::class,'logout'])->name('admin.logout');
+//admin orders
+Route::get('/admin/orders',[OrderController::class,'orders'])->name('admin.orders')->middleware('can:is-admin');
+//admin orders update order status
+Route::put('/admin/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus')->middleware('can:is-admin');
+//admin orders export
+Route::get('/admin/orders/export',[OrderController::class,'export'])->name('admin.orders.export')->middleware('can:is-admin');
+//admin single order details
+Route::get('/admin/orders/{order}',[OrderController::class,'singleOrder'])->name('admin.orders.single')->middleware('can:is-admin');
 });
 Route::get('/admin/login',[AdminController::class,'showLogin'])->name('admin.login');
 Route::post('/admin/authenticate',[AdminController::class,'authenticate'])->name('admin.authenticate');

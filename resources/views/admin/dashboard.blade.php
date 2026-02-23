@@ -1,3 +1,4 @@
+@section('title','Dashboard')
 
 <x-admin>
     <!-- Main Content -->
@@ -61,12 +62,21 @@
                         </thead>
                         <tbody>
                             @foreach ($orders as $order)
+                            @php
+                                if($order->status === 'completed') {
+                                    $status_color='bg-green-100 text-green-700';
+                                } elseif ($order->status === 'cancelled') {
+                                    $status_color='bg-red-100 text-red-700';
+                                } else {
+                                    $status_color='bg-yellow-100 text-yellow-700';
+                                }
+                            @endphp
                             <tr class="border-b">
                                 <td class="px-4 py-2">{{ $order->code }}</td>
                                 <td class="px-4 py-2">{{ $order->user->name }}</td>
                                 <td class="px-4 py-2">${{ $order->total }}</td>
                                 <td class="px-4 py-2">
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">
+                                    <span class="{{ $status_color }} px-2 py-1 rounded text-sm">
                                         {{ $order->status }}
                                     </span>
                                 </td>

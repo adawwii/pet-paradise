@@ -43,6 +43,15 @@ class OrderPolicy
     {
         return false;
     }
+    /**
+     * Determine whether the admin can update the order.
+     */
+    public function updateAny(User $user): Response
+    {
+        return $user->id
+            ? Response::allow()
+            : Response::deny('Unauthorized Action!');
+    }
 
     /**
      * Determine whether the user can delete the model.

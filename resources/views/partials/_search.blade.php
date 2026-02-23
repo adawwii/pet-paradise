@@ -1,5 +1,5 @@
   <!-- Search -->
-  <form action="/products" class="max-w-xl mx-auto mb-12 flex gap-3">
+  <form  class="max-w-xl mx-auto mb-12 flex gap-3">
     <input
       type="text"
       name="search"

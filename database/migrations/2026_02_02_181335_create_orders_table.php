@@ -19,7 +19,7 @@ return new class extends Migration
     $table->foreignId('user_id')->constrained()->onDelete('cascade');
     $table->foreignId('address_id')->constrained()->onDelete('cascade');
     $table->decimal('total', 10, 2);
-    $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+    $table->enum('status', ['pending', 'processing','shipped', 'completed', 'cancelled'])->default('pending');
     $table->timestamps();
 });
 
