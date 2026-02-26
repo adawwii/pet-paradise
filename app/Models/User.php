@@ -3,20 +3,22 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Address;
 use App\Models\Carts;
 use App\Models\Order;
-use App\Models\Review;
-use App\Models\Address;
 use App\Models\Product;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
+use App\Models\Review;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

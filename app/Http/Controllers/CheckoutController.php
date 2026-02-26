@@ -52,6 +52,17 @@ class CheckoutController extends Controller
          $amount=$user->cart->cartItems->sum(function($item){
              return $item->product->price * $item->quantity;
          });
+         //check the products are active and have enough stock before payment
+         $product_availability=$user->cart->cartItems->every(function($item) {
+            return $item->product->is_active && $item->product->stock >= $item->quantity;
+         });
+            if(!$product_availability) {
+                return response()->json([
+                    'success' => false,
+                    'validation_error' =>false,
+                    'message' => 'some products in your cart are not available or out of stock!'
+                ]);
+            }
          
         try {
 
@@ -141,6 +152,8 @@ class CheckoutController extends Controller
                 'total' => $amount,
                 'status' => 'processing',
                 'stripe_payment_intent_id' => $paymentIntent->id,
+                'paid' => true,
+                'paid_at' => now(),
             ]);
 
             $orderItems= $user->cart->cartItems->map(function($item) use ($order) {

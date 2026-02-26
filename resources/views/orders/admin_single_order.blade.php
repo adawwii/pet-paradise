@@ -78,18 +78,25 @@
 
                 <tbody class="divide-y">
                     @foreach($order->orderItems as $item)
+                    @php
+                        if(!$item->product) {
+                            $textDesign='text-red-600 font-semibold ';
+                        } else {
+                            $textDesign='';
+                        }
+                    @endphp
                     <tr>
-                        <td class="px-6 py-4">
-                            {{ $item->product->name }}
+                        <td class="px-6 py-4 {{ $textDesign }}">
+                            {{ $item->product->name ?? 'PRODUCT DELETED' }}
                         </td>
-                        <td class="px-6 py-4">
-                            ${{ number_format($item->product->price, 2) }}
+                        <td class="px-6 py-4 {{ $textDesign }}">
+                            {{ $item->product ? '$' . number_format($item->product->price, 2) : 'PRODUCT DELETED' }}
                         </td>
-                        <td class="px-6 py-4">
-                            {{ $item->quantity }}
+                        <td class="px-6 py-4 {{ $textDesign }}">
+                            {{ $item->product ? $item->quantity : 'PRODUCT DELETED' }}
                         </td>
-                        <td class="px-6 py-4 font-medium">
-                            ${{ number_format($item->product->price * $item->quantity, 2) }}
+                        <td class="px-6 py-4 font-medium {{ $textDesign }}">
+                            {{ $item->product ? '$'. number_format($item->product->price * $item->quantity, 2) : 'PRODUCT DELETED' }}
                         </td>
                     </tr>
                     @endforeach
@@ -132,17 +139,17 @@
         <!-- Payment Status -->
         <div class="mt-4">
             @php
-            if($order->status === 'completed') {
+            if($order->paid == true) {
                 $status_color='bg-green-100 text-green-700';
-                } elseif ($order->status === 'cancelled') {
-                    $status_color='bg-red-100 text-red-700';
+                $payment_status='PAID';
                     } else {
                         $status_color='bg-yellow-100 text-yellow-700';
+                        $payment_status='PENDING';
                         }
                         @endphp
             <span class="px-3 py-1 rounded-full text-xs
                 {{ $status_color }}">
-                Payment: {{ ucfirst($order->status) }}
+                Payment: {{ ucfirst($payment_status) }}
             </span>
         </div>
 

@@ -44,6 +44,10 @@ class Order extends Model
             }
         }
     }
+    //paid at casts to date
+    protected $casts = [
+        'paid_at' => 'datetime',
+    ];
 
     //relationships
     public function user()

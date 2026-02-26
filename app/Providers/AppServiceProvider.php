@@ -40,6 +40,14 @@ class AppServiceProvider extends ServiceProvider
         Authenticate::redirectUsing(function ($request) {
         session()->flash('error', 'Access denied! Authentication required.');
         return route('login');
+        //auth middleware will redirect to home page if user customer is authenticated using auth middleware in routes/web.php
+        if (auth()->check() && auth()->user()->role === 'customer') {
+            return route('home');
+        }
+        //auth middleware will redirect to admin dashboard if user employee or admin is authenticated
+        if (auth()->check() && (auth()->user()->role === 'employee' || auth()->user()->role ==='admin')) {
+            return route('admin.dashboard');
+        }
     });
     }
 }

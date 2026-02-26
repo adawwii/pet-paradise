@@ -42,6 +42,7 @@ class OrderController extends Controller
       if ($order) {
         session()->forget('last_payment_intent'); // clean session
 
+        session()->flash('success', 'Your order has been placed successfully!');
          return response()->json([
             'exists' => true
          ]);

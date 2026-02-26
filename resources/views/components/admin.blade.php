@@ -39,7 +39,7 @@
                 <span class="link-text">Orders</span>
             </a>
 
-            <a href="#"
+            <a href="{{ route('admin.products') }}"
                class="flex items-center gap-3 p-2 rounded hover:bg-gray-800">
                 <span>🐾</span>
                 <span class="link-text">Products</span>

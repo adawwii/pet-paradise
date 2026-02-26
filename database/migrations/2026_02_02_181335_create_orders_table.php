@@ -16,9 +16,11 @@ return new class extends Migration
     $table->id();
     $table->string('code')->unique();
     $table->string('stripe_payment_intent_id')->nullable()->index();
-    $table->foreignId('user_id')->constrained()->onDelete('cascade');
-    $table->foreignId('address_id')->constrained()->onDelete('cascade');
+    $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+    $table->foreignId('address_id')->nullable()->constrained()->nullOnDelete();
     $table->decimal('total', 10, 2);
+    $table->boolean('paid')->default(false)->index();
+    $table->timestamp('paid_at')->nullable();
     $table->enum('status', ['pending', 'processing','shipped', 'completed', 'cancelled'])->default('pending');
     $table->timestamps();
 });

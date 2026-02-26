@@ -21,6 +21,14 @@ class CartController extends Controller
        $cart=$user->cart ?? Carts::create([
         'user_id'=>$user->id
        ]);
+       //check the product is active
+       if(!$product->is_active){
+        return back()->with('error','product is not available!');
+       }
+       //check the product stock
+       if($product->stock<=0){
+        return back()->with('error','product is out of stock!');
+       }
 
        //check the user's cart has the selected item
        $item=$cart->cartItems()->where('product_id',$product->id)->first();
@@ -44,6 +52,16 @@ class CartController extends Controller
         if ($response->denied()) {
             return redirect()->route('home')->with('error',$response->message());
             }
+        //check products in cart are active and have enough stock using map function
+        $deletedItems= $user->cart->cartItems()
+        ->whereHas('product', function ($query) {
+            $query->where('is_active', false)
+            ->orWhereColumn('stock', '<', 'cart_items.quantity');
+            })
+        ->delete();
+        if($deletedItems>0){
+            session()->flash('info','some items removed from your cart due to stock changes!');
+        }
             $cart=$user->cart;
         return view('cart.index',compact('cart'));
     }

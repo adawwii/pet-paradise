@@ -52,7 +52,8 @@
                         <th class="px-6 py-3">Customer</th>
                         <th class="px-6 py-3">Total</th>
                         <th class="px-6 py-3">Address</th>
-                        <th class="px-6 py-3">Payment</th>
+                        <th class="px-6 py-3">Payment Status</th>
+                        <th class="px-6 py-3">Payment Date</th>
                         <th class="px-6 py-3">Status</th>
                         <th class="px-6 py-3 text-right">Action</th>
                     </tr>
@@ -87,21 +88,23 @@
                         <!-- Payment Status -->
                         <td class="px-6 py-4">
                             @php
-                                if($order->status === 'completed'||$order->status === 'shipped'||$order->status === 'processing') {
+                                if($order->paid == true) {
                                     $status_color='bg-green-100 text-green-700';
                                     $payment_status='PAID';
-                                } elseif ($order->status === 'cancelled') {
-                                    $status_color='bg-red-100 text-red-700';
-                                    $payment_status='REFUNDED';
                                 } else {
-                                    $status_color='bg-yellow-100 text-yellow-700';
-                                    $payment_status='PENDING';
+                                    $status_color='bg-red-100 text-red-700';
+                                    $payment_status='NOT PAID';
                                 }
+                                
                             @endphp
                             <span class="px-3 py-1 rounded-full text-xs
                                 {{ $status_color }}">
                                 {{ ucfirst($payment_status) }}
                             </span>
+                        </td>
+                        <!-- Payment Date -->
+                        <td class="px-6 py-4">
+                            {{ $order->paid_at ? $order->paid_at->format('M d, Y') : 'N/A' }}   
                         </td>
 
                         <!-- Order Status Dropdown -->

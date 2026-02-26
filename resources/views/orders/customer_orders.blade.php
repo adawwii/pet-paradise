@@ -50,16 +50,16 @@
 
                                 <div>
                                     <p class="font-medium text-gray-800">
-                                        {{ $item->product->name }}
+                                        {{$item->product ? $item->product->name : 'Product Deleted'}}
                                     </p>
                                     <p class="text-sm text-gray-500">
-                                        Qty: {{ $item->quantity }}
+                                         {{$item->product ? 'Qty: ' . $item->quantity : 'N/A'}}
                                     </p>
                                 </div>
                             </div>
 
                             <p class="font-semibold text-gray-700">
-                                ${{ number_format($item->product->price * $item->quantity, 2) }}
+                                {{$item->product ? '$'.number_format($item->product->price * $item->quantity, 2) : 'N/A'}}
                             </p>
                         </div>
                     @endforeach

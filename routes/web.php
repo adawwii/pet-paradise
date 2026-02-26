@@ -63,10 +63,12 @@ Route::get('/order-processing',[OrderController::class,'orderProcessing'])->name
 //
 Route::get('/check-order',[OrderController::class,'check']);
 //admin dashboard
-Route::get('/dashboard',[AdminController::class, 'index'])->name('dashboard')->middleware('can:is-admin');
+Route::get('/dashboard',[AdminController::class, 'index'])->name('dashboard')
+->middleware('can:is-admin')
+;
 //admin logout
 Route::post('/admin/logout',[AdminController::class,'logout'])->name('admin.logout');
-//admin orders
+//admin show orders
 Route::get('/admin/orders',[OrderController::class,'orders'])->name('admin.orders')->middleware('can:is-admin');
 //admin orders update order status
 Route::put('/admin/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus')->middleware('can:is-admin');
@@ -74,6 +76,16 @@ Route::put('/admin/orders/{order}/status', [OrderController::class, 'updateStatu
 Route::get('/admin/orders/export',[OrderController::class,'export'])->name('admin.orders.export')->middleware('can:is-admin');
 //admin single order details
 Route::get('/admin/orders/{order}',[OrderController::class,'singleOrder'])->name('admin.orders.single')->middleware('can:is-admin');
+//admin show products management page
+Route::get('/admin/products',[ProductController::class,'adminProducts'])->name('admin.products')->middleware('can:is-admin');
+//admin show add product page
+Route::get('/admin/products/add',[ProductController::class,'addProduct'])->name('admin.products.add')->middleware('can:is-admin');
+//admin show edit product page
+Route::get('/admin/products/{product}/edit',[ProductController::class,'editProduct'])->name('admin.product.edit')->middleware('can:is-admin');
+//admin show product details page
+Route::get('/admin/products/{product}',[ProductController::class,'productDetails'])->name('admin.products.details')->middleware('can:is-admin');
+//admin delete product
+Route::delete('/admin/products/{product}',[ProductController::class,'deleteProduct'])->name('admin.product.delete')->middleware('can:is-admin');
 });
 Route::get('/admin/login',[AdminController::class,'showLogin'])->name('admin.login');
 Route::post('/admin/authenticate',[AdminController::class,'authenticate'])->name('admin.authenticate');

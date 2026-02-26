@@ -24,6 +24,10 @@ class AdminController extends Controller
     }
     //show login form
     public function showLogin() {
+        //if admin is already logged in, redirect to dashboard
+        if(auth()->check() && auth()->user()->can('is-admin')) {
+            return redirect()->route('dashboard')->with('info','You are already logged in!');
+        }
         
         return view('admin.login');
     }
@@ -37,10 +41,13 @@ class AdminController extends Controller
             $request->session()->regenerate();
             if(auth()->user()->cannot('is-admin')) {
                 auth()->logout();
-                return redirect()->route('admin.login')->with('error','Access denied! Admins only.');
+                return back()->with('error','Access denied! Admins only.');
             }
             return redirect()->route('dashboard')->with('success','Login successfully!');
         }
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
     //logout admin user
     public function logout(Request $request) {
