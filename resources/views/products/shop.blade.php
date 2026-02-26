@@ -14,7 +14,7 @@
 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:-translate-y-1 transition">
 
     <img
-      src="{{ asset("images/noImage.png") }}"
+      src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset("images/noImage.png") }}"
       class="w-full h-48 object-cover"
       alt="{{ $product->name }}"
     />

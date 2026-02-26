@@ -80,8 +80,14 @@ Route::get('/admin/orders/{order}',[OrderController::class,'singleOrder'])->name
 Route::get('/admin/products',[ProductController::class,'adminProducts'])->name('admin.products')->middleware('can:is-admin');
 //admin show add product page
 Route::get('/admin/products/add',[ProductController::class,'addProduct'])->name('admin.products.add')->middleware('can:is-admin');
+//admin store new product
+Route::post('/admin/products',[ProductController::class,'storeProduct'])->name('admin.product.store')->middleware('can:is-admin');
 //admin show edit product page
 Route::get('/admin/products/{product}/edit',[ProductController::class,'editProduct'])->name('admin.product.edit')->middleware('can:is-admin');
+//admin update product
+Route::put('/admin/products/{product}',[ProductController::class,'updateProduct'])->name('admin.product.update')->middleware('can:is-admin');
+//admin toggle product status
+Route::patch('/admin/products/{product}/toggle', [ProductController::class, 'toggle'])->name('admin.product.toggle')->middleware('can:is-admin');
 //admin show product details page
 Route::get('/admin/products/{product}',[ProductController::class,'productDetails'])->name('admin.products.details')->middleware('can:is-admin');
 //admin delete product

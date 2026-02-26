@@ -107,14 +107,108 @@ class ProductController extends Controller
     }
     //admin show add product page
     public function addProduct() {
-        return view('products.admin_add_product');
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
+        }
+        //categories for select options
+        $categories=Category::all();
+        return view('products.admin_add_product',compact('categories'));
+    }
+    //admin store new product
+    public function storeProduct(Request $request) {
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
+        }
+        //validate request
+        $formFields=$request->validate([
+            'name'=>'required|string|max:255',
+            'category'=>'required|exists:categories,id',
+            'price'=>'required|numeric|min:0',
+            'stock'=>'required|integer|min:0',
+            'is_active'=>'required|boolean',
+            'description'=>'required|string',
+        ]);
+        $formFields['category_id']=$formFields['category'];
+        unset($formFields['category']);
+        $formFields['user_id']=auth()->id();
+        //handle image upload
+        if($request->hasFile('image_url')) {
+            $formFields['image_url']=$request->file('image_url')->store('product_images','public');
+        }
+        //create product
+        Product::create($formFields);
+        //redirect with success message
+        return redirect()->route('admin.products')->with('success','Product added successfully!');
     }
     //admin show edit product page
     public function editProduct(Product $product) {
-        return view('products.admin_edit_product',compact('product'));
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
+        }
+        //cannot edit active product
+        if($product->is_active) {
+            return back()->with('error','Cannot edit active product! Please deactivate it first.');
+        }
+        //categories for select options
+        $categories=Category::all();
+        return view('products.admin_edit_product',compact('product','categories'));
+    }
+    //admin update product
+    public function updateProduct(Request $request, Product $product) {
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
+        }
+        //cannot edit active product
+        if($product->is_active) {
+            return redirect()->route('admin.products')->with('error','Cannot edit active product! Please deactivate it first.');
+        }
+        //validate request
+        $formFields=$request->validate([
+            'name'=>'required|string|max:255',
+            'category'=>'required|exists:categories,id',
+            'price'=>'required|numeric|min:0',
+            'stock'=>'required|integer|min:0',
+            'is_active'=>'required|boolean',
+            'description'=>'required|string',
+        ]);
+        $formFields['category_id']=$formFields['category'];
+        unset($formFields['category']);
+        //handle image upload
+        if($request->hasFile('image_url')) {
+            $formFields['image_url']=$request->file('image_url')->store('product_images','public');
+        }
+        //update product
+        $product->update($formFields);
+        //redirect with success message
+        return redirect()->route('admin.products')->with('success','Product updated successfully!');
+    }
+    //admin toggle product status
+    public function toggle(Product $product) {
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
+        }
+        //update product status
+        $product->update(['is_active' => !$product->is_active]);
+        //redirect with success message
+        return back()->with('success','Product status updated successfully!');
     }
     //admin show product details page
     public function productDetails(Product $product) {
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
+        }
+        //product details with reviews
+        $product=Product::with('category')
+        ->with('reviews')
+        ->withAvg('reviews','rating')
+        ->withCount('reviews')
+        ->find($product->id);   
         return view('products.admin_product_profile',compact('product'));
     }
     //admin delete product
@@ -122,6 +216,10 @@ class ProductController extends Controller
         //auth check is admin
         if(auth()->user()->cannot('is-admin')) {
             return redirect()->route('login')->with('error','Unauthorized action!');
+        }
+        //cannot delete active product
+        if($product->is_active) {
+            return back()->with('error','Cannot delete active product! Please deactivate it first.');
         }
         //soft delete product
         $product->delete();

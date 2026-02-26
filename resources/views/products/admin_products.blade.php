@@ -38,6 +38,7 @@
                 <tr>
                     <th class="px-6 py-3">Image</th>
                     <th class="px-6 py-3">Name</th>
+                    <th class="px-6 py-3">Rating</th>
                     <th class="px-6 py-3">Category</th>
                     <th class="px-6 py-3">Price</th>
                     <th class="px-6 py-3">Stock</th>
@@ -58,24 +59,35 @@
                             }
                             if($product->is_active == true) {
                                 $product_condition='Active';
-                                $product_Design='bg-green-100 text-green-700';
+                                $product_Design='bg-green-100 text-green-800 hover:bg-green-200';
                             } else {
                                 $product_condition='Inactive';
-                                $product_Design='bg-gray-100 text-gray-700';
+                                $product_Design='bg-gray-100 text-gray-800 hover:bg-gray-200';
                             }   
                         @endphp
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4">
                         <img src="{{ 
-                            // $product->image_url 
-                            // ? asset('storage/' . $product->image_url) 
-                            // : 
+                            $product->image_url 
+                            ? asset('storage/' . $product->image_url) 
+                            : 
                             asset('images/noImage.png') 
                             }}"
                              class="w-14 h-14 rounded-lg object-cover">
                     </td>
                     <td class="px-6 py-4 font-medium text-gray-800">
                      <a href="{{ route('admin.products.details', $product->id) }}">{{ $product->name }}</a>
+                    </td>
+                    <td class="px-6 py-4 text-center  font-medium text-gray-800">
+                        <span class="whitespace-nowrap">
+                            {{ number_format($product->reviews_avg_rating ?? 0, 1) }} / 5
+                            <span class="text-yellow-500">
+                                &#9733;
+                            </span>
+                        </span>
+                      <span class="block text-center text-sm text-gray-500">
+                          ({{ $product->reviews_count }})
+                        </span>  
                     </td>
                     <td class="px-6 py-4 text-gray-600">
                      <a href="{{ route('admin.products') }}?tags={{ $product->category->name }}">{{ $product->category->name }}</a>
@@ -87,11 +99,15 @@
                         {{ $stock_condition }}
                     </td>
                     <td class="px-6 py-4">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $product_Design }}">
+                         <form id="updateForm-{{ $product->id }}" action="{{ route('admin.product.toggle', $product->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="button" onclick="openUpdateModal({{ $product->id }})" class="px-3 text-center py-1 rounded-full text-sm font-medium transition {{ $product_Design }}">
                             {{ $product_condition }}
-                        </span>
+                        </button>
+                         </form>
                     </td>
-                    <td class="px-6 py-4 text-right space-x-2">
+                    <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                         <a href="{{ route('admin.product.edit', $product->id) }}"
                            class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
                             Edit
@@ -122,9 +138,11 @@
 
 <!-- Delete Modal -->
 @include('partials._delete_modal')
+@include('partials._confirm_modal')
 
 <script>
     let currentDeleteId = null;
+    let currentToggleId = null;
     function openDeleteModal(id) {
         currentDeleteId = 'deleteForm-' + id;
         const modal = document.getElementById('deleteModal');
@@ -139,6 +157,22 @@
     }
     function proccedDelete() {
         document.getElementById(currentDeleteId).submit();
+    }
+    //toggle product status
+    function openUpdateModal(id) {
+        currentToggleId = 'updateForm-' + id;
+        const modal = document.getElementById('confirmModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeUpdateModal() {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    function proccedUpdate() {
+        document.getElementById(currentToggleId).submit();
     }
 </script>
 </x-admin>
