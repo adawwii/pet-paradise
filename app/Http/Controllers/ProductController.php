@@ -208,8 +208,14 @@ class ProductController extends Controller
         ->with('reviews')
         ->withAvg('reviews','rating')
         ->withCount('reviews')
-        ->find($product->id);   
-        return view('products.admin_product_profile',compact('product'));
+        ->find($product->id);
+        $reviews=Review::with('user')        
+        ->where('product_id',$product->id)
+        ->latest()
+        ->Paginate(10)
+        ->withQueryString();   
+        
+        return view('products.admin_product_profile',compact('product','reviews'));
     }
     //admin delete product
     public function deleteProduct(Product $product) {
@@ -223,7 +229,7 @@ class ProductController extends Controller
         }
         //soft delete product
         $product->delete();
-        return back()->with('success','Product deleted successfully!');
+        return redirect()->route('admin.products')->with('success','Product deleted successfully!');
     }
         
 

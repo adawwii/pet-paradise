@@ -124,6 +124,15 @@ class UserController extends Controller
 
 
     } 
+    //admin show all customers
+    public function adminCustomers() {
+        $customers=User::withCount('orders')
+        ->where('role','customer')
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+        return view('user.admin_customers',compact('customers'));
+    }
 
 
 }

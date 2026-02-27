@@ -3,7 +3,7 @@
 <div class="max-w-6xl mx-auto p-6 space-y-6">
 
     <!-- Back Button -->
-    <a href="javascript:history.back()"
+    <a href="{{ route('admin.products') }}"
        class="inline-flex items-center gap-2 px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50 transition w-fit">
         ← Back
     </a>
@@ -57,15 +57,33 @@
                     <span class="text-gray-700 font-medium">Status:</span>
 
                     <!-- Toggle -->
-                    <button id="statusToggle"
-                            class="relative w-14 h-7 bg-green-500 rounded-full transition">
-                        <span id="toggleCircle"
-                              class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition"></span>
+                    @php
+                        if($product->is_active) {
+                            $toggleStyle="bg-green-500";
+                            $circleStyle="";
+                            $textStyle="text-green-600";
+                            $textContent="Active";
+                        }
+                        else {
+                            $toggleStyle="bg-gray-400";
+                            $circleStyle="translate-x-7";
+                            $textStyle="text-red-600";
+                            $textContent="Inactive";
+                        }
+                    @endphp
+                    <form id="updateForm-{{ $product->id }}" action="{{ route('admin.product.toggle', $product->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                    <button type="button" onclick="openUpdateModal({{ $product->id }})"
+                            class="relative w-14 h-7 {{ $toggleStyle }} rounded-full transition">
+                        <span 
+                              class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition {{ $circleStyle }}"></span>
                     </button>
+                    </form>
 
-                    <span id="statusText"
-                          class="text-green-600 font-semibold">
-                        Active
+                    <span 
+                          class="{{ $textStyle }} font-semibold">
+                        {{ $textContent }}
                     </span>
                 </div>
 
@@ -75,11 +93,14 @@
                        class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
                         Edit
                     </a>
-
-                    <button onclick="openDeleteModal()"
+                    <form id="deleteForm-{{ $product->id }}" action="{{ route('admin.product.delete', $product->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                    <button type="button" onclick="openDeleteModal({{ $product->id }})"
                             class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">
                         Delete
                     </button>
+                    </form>
                 </div>
 
             </div>
@@ -97,36 +118,24 @@
         <div class="space-y-6">
 
             <!-- Review Item -->
+            @foreach ($reviews as $review )
             <div class="border-b pb-4">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-semibold text-gray-800">Ahmed Ali</h3>
-                    <span class="text-yellow-500">★★★★★</span>
+                    <h3 class="font-semibold text-gray-800">{{ $review->user->name }}</h3>
+                    <div class="flex mb-2">
+                     @for ($i = 1; $i <= 5; $i++)
+                       <span class="{{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
+                     @endfor
+                    </div>
                 </div>
                 <p class="text-gray-600">
-                    Excellent quality! My dog loves it.
+                    {{ $review->comment }}
                 </p>
             </div>
-
-            <div class="border-b pb-4">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-semibold text-gray-800">Sara Mohamed</h3>
-                    <span class="text-yellow-500">★★★★☆</span>
-                </div>
-                <p class="text-gray-600">
-                    Very good product but delivery was slightly delayed.
-                </p>
-            </div>
-
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-semibold text-gray-800">Omar Hassan</h3>
-                    <span class="text-yellow-500">★★★★★</span>
-                </div>
-                <p class="text-gray-600">
-                    Highly recommended. Will buy again!
-                </p>
-            </div>
-
+            @endforeach
+<div class="mt-8">
+  {{ $reviews->links() }}
+</div>
         </div>
 
     </div>
@@ -134,56 +143,16 @@
 </div>
 
 <!-- Delete Modal -->
-<div id="deleteModal"
-     class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-        <h2 class="text-lg font-semibold mb-4">Confirm Delete</h2>
-        <p class="text-gray-600 mb-6">
-            Are you sure you want to delete this product?
-        </p>
-
-        <div class="flex justify-end gap-3">
-            <button onclick="closeDeleteModal()"
-                    class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-                Cancel
-            </button>
-
-            <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-                Delete
-            </button>
-        </div>
-    </div>
-</div>
+@include('partials._delete_modal')
+<!-- Confirm Modal -->
+@include('partials._confirm_modal')
 
 <script>
-    const toggle = document.getElementById('statusToggle');
-    const circle = document.getElementById('toggleCircle');
-    const text = document.getElementById('statusText');
+    let currentDeleteId = null;
+    let currentToggleId = null;
 
-    let isActive = true;
-
-    toggle.addEventListener('click', () => {
-        isActive = !isActive;
-
-        if (isActive) {
-            toggle.classList.remove('bg-gray-400');
-            toggle.classList.add('bg-green-500');
-            circle.classList.remove('translate-x-7');
-            text.textContent = "Active";
-            text.classList.remove('text-red-600');
-            text.classList.add('text-green-600');
-        } else {
-            toggle.classList.remove('bg-green-500');
-            toggle.classList.add('bg-gray-400');
-            circle.classList.add('translate-x-7');
-            text.textContent = "Inactive";
-            text.classList.remove('text-green-600');
-            text.classList.add('text-red-600');
-        }
-    });
-
-    function openDeleteModal() {
+    function openDeleteModal(id) {
+        currentDeleteId = 'deleteForm-' + id;
         const modal = document.getElementById('deleteModal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -193,6 +162,25 @@
         const modal = document.getElementById('deleteModal');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+    }
+    function proccedDelete() {
+        document.getElementById(currentDeleteId).submit();
+    }
+    //toggle product status
+    function openUpdateModal(id) {
+        currentToggleId = 'updateForm-' + id;
+        const modal = document.getElementById('confirmModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeUpdateModal() {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    function proccedUpdate() {
+        document.getElementById(currentToggleId).submit();
     }
 </script>
 

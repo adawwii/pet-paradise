@@ -52,7 +52,7 @@
                 <span class="link-text">Add Product</span>
             </a>
 
-            <a href="#"
+            <a href="{{ route('admin.customers') }}"
                class="flex items-center gap-3 p-2 rounded hover:bg-gray-800">
                 <span>👤</span>
                 <span class="link-text">Users</span>
