@@ -35,12 +35,12 @@
 
         <!-- Customer Info -->
         <div class="bg-white shadow rounded-lg p-6">
-            <h2 class="font-semibold text-gray-800 mb-4">Customer Information</h2>
+            <h2 class="font-semibold text-gray-800 mb-4">Customer Information <span class="text-xs text-red-600">{{ $user->deleted_at ? '(Deleted User)' : '' }}</span></h2>
 
             <div class="space-y-2 text-sm">
-                <p><span class="font-medium">Name:</span> {{ $order->user->name }}</p>
-                <p><span class="font-medium">Email:</span> {{ $order->user->email }}</p>
-                <p><span class="font-medium">Phone:</span> {{ $order->user->phone_number ?? 'N/A' }}</p>
+                <p><span class="font-medium">Name:</span> {{ $user->name ?? 'N/A' }}</p>
+                <p><span class="font-medium">Email:</span> {{ $user->email ?? 'N/A' }}</p>
+                <p><span class="font-medium">Phone:</span> {{ $user->phone_number ?? 'N/A' }}</p>
             </div>
         </div>
 

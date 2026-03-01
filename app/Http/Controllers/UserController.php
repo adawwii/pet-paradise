@@ -128,11 +128,31 @@ class UserController extends Controller
     public function adminCustomers() {
         $customers=User::withCount('orders')
         ->where('role','customer')
+        ->filter(request()->only(['search','status','account_type']))
         ->latest()
         ->paginate(10)
         ->withQueryString();
         return view('user.admin_customers',compact('customers'));
     }
+    //admin delete customer
+    public function deleteCustomer(User $customer) {
+        $response=Gate::inspect('is-admin',User::class);
+        if($response->denied()) {
+            return redirect()->route('dashboard')->with('error','Unauthorized Action!');
+        }
 
+        $customer->delete();
+        return redirect()->route('admin.customers')->with('success','Customer Deleted Successfully!');
+    }
+    //admin restore customer
+    public function restoreCustomer($customer) {
+        $response=Gate::inspect('is-admin',User::class);
+        if($response->denied()) {
+            return redirect()->route('dashboard')->with('error','Unauthorized Action!');
+        }
+        $customer=User::onlyTrashed()->where('id',$customer)->first();
+        $customer->restore();
+        return redirect()->route('admin.customers')->with('success','Customer Restored Successfully!');
+    }
 
 }

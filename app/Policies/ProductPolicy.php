@@ -49,6 +49,14 @@ class ProductPolicy
     }
 
     /**
+     * Determine whether the user can view deleted products.
+     */
+    public function viewDeleted(User $user): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, Product $product): bool

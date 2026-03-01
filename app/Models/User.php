@@ -53,6 +53,35 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    //scope filter for search and filter by email verified or not
+    public function scopeFilter($query,array $filters) {
+        if($filters['search'] ?? false) {
+            $search=request('search');
+            $query->where('name','like','%'.$search.'%')
+            ->orWhere('email','like','%'.$search.'%')
+            ->orWhere('phone_number','like','%'.$search.'%')
+            ->orWhereHas('orders',function($q) use ($search) {
+                $q->where('code','like','%'.$search.'%');
+            });
+        }
+        if($filters['status'] ?? false) {
+            $status=request('status');
+            if($status == 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } else if($status == 'unverified') {
+                $query->whereNull('email_verified_at');
+            } 
+        }
+        if($filters['account_type'] ?? false) {
+            $type=request('account_type');
+            if($type == 'trashed') {
+                $query->onlyTrashed();
+            } else if($type == 'all') {
+                $query->withTrashed();
+            }
+        }
+        return $query;
+    }
 
     //RelationShips
     public function orders() {

@@ -71,7 +71,7 @@
 
                         <!-- Customer -->
                         <td class="px-6 py-4">
-                            {{ $order->user->name ?? 'N/A' }}
+                            {{ $order->user->name ?? 'N/A' }} <span class="text-xs text-red-600">{{ $order->user->deleted_at ? '(Deleted User)' : '' }}</span>
                         </td>
 
                         <!-- Total -->

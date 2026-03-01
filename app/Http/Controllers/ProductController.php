@@ -85,7 +85,7 @@ class ProductController extends Controller
         ->with('reviews')
         ->withAvg('reviews', 'rating')
         ->withCount('reviews')
-        ->filter($request->only('search','tags'))
+        ->filter($request->only('search','tags','trashed'))
         ->when($request->sort ?? false, function ($query, $sort) {
             if($sort=='rate'){
                 $query->withAvg('reviews', 'rating')
@@ -101,7 +101,7 @@ class ProductController extends Controller
                 }
         })
         ->paginate(8)
-        ->withQueryString()
+        ->appends(request()->query())
         ;
         return view('products.admin_products',compact('products'));
     }
@@ -187,11 +187,13 @@ class ProductController extends Controller
         return redirect()->route('admin.products')->with('success','Product updated successfully!');
     }
     //admin toggle product status
-    public function toggle(Product $product) {
+    public function toggle($product) {
         //auth check is admin
         if(auth()->user()->cannot('is-admin')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
+        $product=Product::where('id',$product)
+        ->first();
         //update product status
         $product->update(['is_active' => !$product->is_active]);
         //redirect with success message
@@ -206,10 +208,14 @@ class ProductController extends Controller
         //product details with reviews
         $product=Product::with('category')
         ->with('reviews')
+        ->withTrashed()
         ->withAvg('reviews','rating')
         ->withCount('reviews')
         ->find($product->id);
-        $reviews=Review::with('user')        
+        //reviews with user details(+ deleted users)
+        $reviews=Review::with(['user' => function ($query) {
+            $query->withTrashed();
+        }])        
         ->where('product_id',$product->id)
         ->latest()
         ->Paginate(10)
@@ -230,6 +236,19 @@ class ProductController extends Controller
         //soft delete product
         $product->delete();
         return redirect()->route('admin.products')->with('success','Product deleted successfully!');
+    }
+    //admin restore product
+    public function restoreProduct($product) {
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin')) {
+            return redirect()->route('login')->with('error','Unauthorized action!');
+        }
+        $product=Product::onlyTrashed()
+        ->where('id',$product)
+        ->first();
+        //restore product
+        $product->restore();
+        return back()->with('success','Product restored successfully!');
     }
         
 

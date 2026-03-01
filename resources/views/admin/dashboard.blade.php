@@ -73,7 +73,7 @@
                             @endphp
                             <tr class="border-b">
                                 <td class="px-4 py-2">{{ $order->code }}</td>
-                                <td class="px-4 py-2">{{ $order->user->name }}</td>
+                                <td class="px-4 py-2">{{ $order->user->name }} <span class="text-xs text-red-600">{{ $order->user->deleted_at ? '(Deleted User)' : '' }}</td>
                                 <td class="px-4 py-2">${{ $order->total }}</td>
                                 <td class="px-4 py-2">
                                     <span class="{{ $status_color }} px-2 py-1 rounded text-sm">

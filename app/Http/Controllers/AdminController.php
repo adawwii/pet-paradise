@@ -18,7 +18,11 @@ class AdminController extends Controller
         $usersCount=User::where('role','customer')->count('id');
         $ordersCount=Order::count('id');
         $revenue=Order::where('status','completed')->sum('total');
-        $orders=Order::latest()->paginate(10)->withQueryString();
+        $orders=Order::with([
+            'user' => function($query) {
+                $query->withTrashed();
+            }
+        ])->latest()->paginate(10)->withQueryString();
         // dd($usersCount);
         return view('admin.dashboard',compact('productsCount','usersCount','ordersCount','revenue','orders'));
     }

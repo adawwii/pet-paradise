@@ -92,8 +92,14 @@ Route::patch('/admin/products/{product}/toggle', [ProductController::class, 'tog
 Route::get('/admin/products/{product}',[ProductController::class,'productDetails'])->name('admin.products.details')->middleware('can:is-admin');
 //admin delete product
 Route::delete('/admin/products/{product}',[ProductController::class,'deleteProduct'])->name('admin.product.delete')->middleware('can:is-admin');
+//admin restore product
+Route::patch('/admin/products/{product}/restore',[ProductController::class,'restoreProduct'])->name('admin.product.restore')->middleware('can:is-admin');
 //admin show customers management page
 Route::get('/admin/customers',[UserController::class,'adminCustomers'])->name('admin.customers')->middleware('can:is-admin');
+//admin delete customer
+Route::delete('/admin/customers/{customer}',[UserController::class,'deleteCustomer'])->name('admin.customer.delete')->middleware('can:is-admin');
+//admin restore customer
+Route::patch('/admin/customers/{customer}/restore',[UserController::class,'restoreCustomer'])->name('admin.customer.restore')->middleware('can:is-admin');
 });
 Route::get('/admin/login',[AdminController::class,'showLogin'])->name('admin.login');
 Route::post('/admin/authenticate',[AdminController::class,'authenticate'])->name('admin.authenticate');

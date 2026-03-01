@@ -58,7 +58,13 @@ class OrderController extends Controller
       if($response->denied()) {
         return redirect()->route('admin.login')->with('error',$response->message());
       }
-      $orders=Order::filter($request->only('search','status'))->latest()->paginate(8)->withQueryString();
+      $orders=Order::with(['user'=>function($query){
+        $query->withTrashed();
+      }])
+      ->filter($request->only('search','status'))
+      ->latest()
+      ->paginate(8)
+      ->withQueryString();
       return view('orders.admin_orders',compact('orders')); 
     }
     //update order status by admin
@@ -115,7 +121,7 @@ class OrderController extends Controller
       if($response->denied()) {
         return redirect()->route('admin.login')->with('error',$response->message());
       }
-      $user = $order->user;
+      $user = $order->user()->withTrashed()->first();
       return view('orders.admin_single_order',compact('order','user'));
      }
 }

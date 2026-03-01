@@ -121,7 +121,7 @@
             @foreach ($reviews as $review )
             <div class="border-b pb-4">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-semibold text-gray-800">{{ $review->user->name }}</h3>
+                    <h3 class="font-semibold text-gray-800">{{ $review->user->name }} <span class="text-xs text-red-600">{{ $review->user->deleted_at ? '(Deleted User)' : '' }}</span></h3>
                     <div class="flex mb-2">
                      @for ($i = 1; $i <= 5; $i++)
                        <span class="{{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
