@@ -46,10 +46,10 @@
             </a>
 
             <!-- Add Product -->
-            <a href="#"
+            <a href="{{ route('admin.review.show') }}"
                class="flex items-center gap-3 p-2 rounded hover:bg-gray-800">
-                <span>➕</span>
-                <span class="link-text">Add Product</span>
+                <span>⭐</span>
+                <span class="link-text">Reviews</span>
             </a>
 
             <a href="{{ route('admin.customers') }}"

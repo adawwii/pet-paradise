@@ -142,17 +142,37 @@ class UserController extends Controller
         }
 
         $customer->delete();
-        return redirect()->route('admin.customers')->with('success','Customer Deleted Successfully!');
+        return back()->with('success','Customer Deleted Successfully!');
     }
     //admin restore customer
     public function restoreCustomer($customer) {
         $response=Gate::inspect('is-admin',User::class);
         if($response->denied()) {
-            return redirect()->route('dashboard')->with('error','Unauthorized Action!');
+            return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         }
         $customer=User::onlyTrashed()->where('id',$customer)->first();
         $customer->restore();
-        return redirect()->route('admin.customers')->with('success','Customer Restored Successfully!');
+        return back()->with('success','Customer Restored Successfully!');
+    }
+    //admin show customer's profile
+    public function adminAnyProfile($customer) {
+        $response=Gate::inspect('is-admin',User::class);
+        if($response->denied()) {
+            return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        }
+        $customer=User::withTrashed()
+        ->where('id',$customer)
+        ->first();
+        $orders=$customer->orders()
+        ->with('orderItems')
+        ->with(['orderItems.product' => function($query) {
+            $query->withTrashed();
+        }])
+        ->paginate(5,['*'],'ordersPage')
+        ->withQueryString();
+        $reviews=$customer->reviews()->paginate(1,['*'],'reviewsPage')
+        ->withQueryString();
+        return view('user.admin_customer_profile',compact('customer','orders','reviews'));
     }
 
 }

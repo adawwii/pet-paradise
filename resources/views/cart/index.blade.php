@@ -25,7 +25,7 @@
                     <div class="flex flex-col sm:flex-row items-center bg-white shadow rounded-lg p-4">
 
                         <!-- Image -->
-                        <img src="{{ $item->product->image_url }}"
+                        <img src="{{ $item->product->image_url ? asset('storage/'.$item->product->image_url) : asset('images/noImage.png') }}"
                              class="w-24 h-24 object-cover rounded-md">
 
                         <!-- Info -->
@@ -33,7 +33,7 @@
 
                             <div class="flex justify-between items-center">
                                 <h2 class="text-lg font-semibold">
-                                    {{ $item->product->name }}
+                                  <a href="{{ route('customer.product.profile',$item->product->id) }}">  {{ $item->product->name }} </a>
                                 </h2>
 
                                 <!-- Remove -->

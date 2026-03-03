@@ -15,7 +15,7 @@ Route::get('/',[ProductController::class,'index'])->name('home');
 //show products page (shop)
 Route::get('/shop',[ProductController::class,'show'])->name('shop');
 //show single product page
-Route::get('/shop/{pId}',[ProductController::class,'details']);
+Route::get('/shop/{pId}',[ProductController::class,'details'])->name('customer.product.profile');
 //show categories page
 Route::get('/categories',[CategoryController::class,'show'])->name('category');
 //unauthenticated users only
@@ -100,6 +100,14 @@ Route::get('/admin/customers',[UserController::class,'adminCustomers'])->name('a
 Route::delete('/admin/customers/{customer}',[UserController::class,'deleteCustomer'])->name('admin.customer.delete')->middleware('can:is-admin');
 //admin restore customer
 Route::patch('/admin/customers/{customer}/restore',[UserController::class,'restoreCustomer'])->name('admin.customer.restore')->middleware('can:is-admin');
+//admin customer profile managment page
+Route::get('/admin/customers/{customer}/profile',[UserController::class,'adminAnyProfile'])->name('admin.customer.profile')->middleware('can:is-admin');
+//admin show product's reviews
+Route::get('/admin/reviews',[ReviewController::class,'showAdmin'])->name('admin.review.show')->middleware('can:is-admin');
+//admin update review status
+Route::patch('/admin/review/{review}/status',[ReviewController::class,'updateStatus'])->name('admin.review.status')->middleware('can:is-admin');
+//admin delete review
+Route::delete('/admin/review/{review}/delete',[ReviewController::class,'deleteStatus'])->name('admin.review.delete')->middleware('can:is-admin');
 });
 Route::get('/admin/login',[AdminController::class,'showLogin'])->name('admin.login');
 Route::post('/admin/authenticate',[AdminController::class,'authenticate'])->name('admin.authenticate');

@@ -38,9 +38,8 @@ class ProductController extends Controller
     //show products
     public function show(Request $request) {
             $products=Product::with('category')
-            ->with('reviews')
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
+            ->withAvg(['reviews'=> fn($q) => $q->where('status', 'approved')], 'rating')
+            ->withCount(['reviews'=> fn($q) => $q->where('status', 'approved')])
             ->filter($request->only('search','tags'))
             ->when($request->sort ?? false, function ($query, $sort) {
                 if($sort=='rate'){
@@ -66,14 +65,17 @@ class ProductController extends Controller
     public function details($id) {
         $product=Product::with('category')
         ->withAvg('reviews','rating')
-        ->withCount('reviews')
+        ->withCount(['reviews' => fn($q) => $q->where('status','approved')])
         ->where('is_active', true)
         ->find($id);
         if(!$product) {
             return redirect()->route('shop')->with("info","Product you're looking for does not exist!");
         }
-        $reviews=Review::with('user')
+        $reviews=Review::with(['user' => function($query) {
+            $query->withTrashed();
+        }])
         ->where('product_id',$product->id)
+        ->where('status','approved')
         ->latest()
         ->simplePaginate(2);
         // return response()->json($product,200);

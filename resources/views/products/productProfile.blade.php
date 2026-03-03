@@ -11,7 +11,7 @@
     <!-- Product Image -->
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
       <img
-        src="{{ asset('images/noImage.png') }}"
+        src="{{ $product->image_url ? asset('storage/'.$product->image_url) : asset('images/noImage.png') }}"
         alt="{{ $product->name }}"
         class="w-full h-[420px] object-cover"
       />
@@ -56,13 +56,14 @@
       </p>
 
       <!-- Add to Cart -->
-      <form method="POST" action="#">
+      <form method="POST" action="{{ route('cart.add',$product->id) }}">
         @csrf
         <div class="flex items-center gap-4 mb-6">
           <input
             type="number"
             min="1"
             value="1"
+            name="quantity"
             class="w-20 px-3 py-2 border rounded-lg"
           />
 

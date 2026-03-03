@@ -11,6 +11,30 @@ class Review extends Model
 {
     //
     use HasFactory;
+
+    public function scopeFilter($query, array $filters) {
+        if(!empty($filters['search'])) {
+            $search=$filters['search'];
+            $query->where('comment','like','%'.$search.'%')
+            ->orWhereHas('user',function($q) use ($search) {
+                $q->where('name','like','%'.$search.'%')
+                ->withTrashed();
+            })
+            ->orWhereHas('product',function($q) use ($search) {
+                $q->where('name','like','%'.$search.'%')
+                ->withTrashed();
+            })
+            ;
+        }
+        if(!empty($filters['reviewStatus'])) {
+            $status=$filters['reviewStatus'];
+            if($status !='all'){
+                $query->where('status',$status);
+                }
+        }
+        return $query;
+    }
+
     public function user() {
         return $this->belongsTo(User::class);
     }

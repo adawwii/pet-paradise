@@ -32,6 +32,21 @@ class CartController extends Controller
 
        //check the user's cart has the selected item
        $item=$cart->cartItems()->where('product_id',$product->id)->first();
+       //check if the item's quantity applied
+       if(request()->has('quantity')) {
+           $item_quantity=request('quantity');
+        if($item) {
+            $item_quantity=$item->quantity + $item_quantity;
+        $item->update([
+            'quantity'=>$item_quantity
+        ]);
+       } else {
+        $cart->cartItems()->create([
+            'product_id'=>$product->id,
+            'quantity'=>$item_quantity
+        ]);
+       }
+       } else {
 
        if($item) {
         $item->increment('quantity');
@@ -40,6 +55,8 @@ class CartController extends Controller
             'product_id'=>$product->id,
             'quantity'=>1
         ]);
+       }
+       
        }
 
 

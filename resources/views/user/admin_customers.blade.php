@@ -143,7 +143,7 @@
                     </td>
                     <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
 
-                        <a href="#"
+                        <a href="{{ route('admin.customer.profile' , $customer->id) }}"
                            class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
                             View
                         </a>

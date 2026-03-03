@@ -24,6 +24,7 @@ class ReviewFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id,
             'rating' => $this->faker->numberBetween(1, 5),
             'comment' => $this->faker->sentence(),
+            'status' => $this->faker->randomElement(['pending', 'approved','rejected'])
         ];
     }
 }
