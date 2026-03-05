@@ -6,12 +6,13 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class AdminController extends Controller
 {
     //index
     public function index() {
-        if(auth()->user()->cannot('is-admin')) {
+        if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Access denied! Admins only.');
         }
         $productsCount=Product::count('id');
@@ -29,7 +30,7 @@ class AdminController extends Controller
     //show login form
     public function showLogin() {
         //if admin is already logged in, redirect to dashboard
-        if(auth()->check() && auth()->user()->can('is-admin')) {
+        if(auth()->check() && auth()->user()->can('is-admin-employee')) {
             return redirect()->route('dashboard')->with('info','You are already logged in!');
         }
         
@@ -43,9 +44,11 @@ class AdminController extends Controller
         ]); 
         if (auth()->attempt($credentials)) {
             $request->session()->regenerate();
-            if(auth()->user()->cannot('is-admin')) {
-                auth()->logout();
-                return back()->with('error','Access denied! Admins only.');
+
+            $response=Gate::inspect('is-admin-employee',User::class);
+            if($response->denied()) {
+            auth()->logout();
+            return back()->with('error','Access denied! Admins only.');
             }
             return redirect()->route('dashboard')->with('success','Login successfully!');
         }

@@ -51,12 +51,21 @@
                 <span>⭐</span>
                 <span class="link-text">Reviews</span>
             </a>
-
+            {{-- customers --}}
             <a href="{{ route('admin.customers') }}"
                class="flex items-center gap-3 p-2 rounded hover:bg-gray-800">
                 <span>👤</span>
-                <span class="link-text">Users</span>
+                <span class="link-text">Customers</span>
             </a>
+            {{-- employees --}}
+            @can('is-admin')
+            <hr>
+              <a href="{{ route('admin.show.employees') }}"
+              class="flex items-center gap-3 p-2 rounded hover:bg-gray-800">
+                <span>👤</span>
+                <span class="link-text">Employees</span>
+               </a>
+            @endcan
 
         </nav>
 

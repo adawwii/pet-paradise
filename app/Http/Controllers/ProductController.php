@@ -81,8 +81,12 @@ class ProductController extends Controller
         // return response()->json($product,200);
         return view('products.productProfile',compact('product','reviews'));
     }
-    //admin show products management page
+    //employee and admin show products management page
     public function adminProducts(Request $request) { 
+        //auth check is admin
+        if(auth()->user()->cannot('is-admin-employee')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
+        }
         $products=Product::with('category')
         ->with('reviews')
         ->withAvg('reviews', 'rating')
@@ -107,20 +111,20 @@ class ProductController extends Controller
         ;
         return view('products.admin_products',compact('products'));
     }
-    //admin show add product page
+    //employee and admin show add product page
     public function addProduct() {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
+        if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         //categories for select options
         $categories=Category::all();
         return view('products.admin_add_product',compact('categories'));
     }
-    //admin store new product
+    //employee and admin store new product
     public function storeProduct(Request $request) {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
+        if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         //validate request
@@ -144,10 +148,10 @@ class ProductController extends Controller
         //redirect with success message
         return redirect()->route('admin.products')->with('success','Product added successfully!');
     }
-    //admin show edit product page
+    //employee and admin show edit product page
     public function editProduct(Product $product) {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
+        if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         //cannot edit active product
@@ -158,10 +162,10 @@ class ProductController extends Controller
         $categories=Category::all();
         return view('products.admin_edit_product',compact('product','categories'));
     }
-    //admin update product
+    //employee and admin update product
     public function updateProduct(Request $request, Product $product) {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
+        if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         //cannot edit active product
@@ -186,12 +190,12 @@ class ProductController extends Controller
         //update product
         $product->update($formFields);
         //redirect with success message
-        return redirect()->route('admin.products')->with('success','Product updated successfully!');
+        return redirect()->route('admin.products.details',$product->id)->with('success','Product updated successfully!');
     }
-    //admin toggle product status
+    //employee and admin toggle product status
     public function toggle($product) {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
+        if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         $product=Product::where('id',$product)
@@ -201,10 +205,10 @@ class ProductController extends Controller
         //redirect with success message
         return back()->with('success','Product status updated successfully!');
     }
-    //admin show product details page
-    public function productDetails(Product $product) {
+    //employee and admin show product details page
+    public function productDetails($product) {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
+        if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         //product details with reviews
@@ -213,7 +217,7 @@ class ProductController extends Controller
         ->withTrashed()
         ->withAvg('reviews','rating')
         ->withCount('reviews')
-        ->find($product->id);
+        ->find($product);
         //reviews with user details(+ deleted users)
         $reviews=Review::with(['user' => function ($query) {
             $query->withTrashed();
@@ -225,11 +229,11 @@ class ProductController extends Controller
         
         return view('products.admin_product_profile',compact('product','reviews'));
     }
-    //admin delete product
+    //employee and admin delete product
     public function deleteProduct(Product $product) {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
-            return redirect()->route('login')->with('error','Unauthorized action!');
+        if(auth()->user()->cannot('is-admin-employee')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         //cannot delete active product
         if($product->is_active) {
@@ -237,13 +241,13 @@ class ProductController extends Controller
         }
         //soft delete product
         $product->delete();
-        return redirect()->route('admin.products')->with('success','Product deleted successfully!');
+        return back()->with('success','Product deleted successfully!');
     }
-    //admin restore product
+    //employee and admin restore product
     public function restoreProduct($product) {
         //auth check is admin
-        if(auth()->user()->cannot('is-admin')) {
-            return redirect()->route('login')->with('error','Unauthorized action!');
+        if(auth()->user()->cannot('is-admin-employee')) {
+            return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
         $product=Product::onlyTrashed()
         ->where('id',$product)

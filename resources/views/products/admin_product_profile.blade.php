@@ -1,4 +1,4 @@
-@section('title','Product Details')
+@section('title','Product Details ')
 <x-admin>
 <div class="max-w-6xl mx-auto p-6 space-y-6">
 
@@ -93,6 +93,7 @@
                        class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
                         Edit
                     </a>
+                    @if(!$product->deleted_at)
                     <form id="deleteForm-{{ $product->id }}" action="{{ route('admin.product.delete', $product->id) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
@@ -101,6 +102,16 @@
                         Delete
                     </button>
                     </form>
+                    @else
+                    <form id="updateForm-{{ $product->id .'2'}}" action="{{ route('admin.product.restore', $product->id) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                    <button type="button" onclick="openUpdateModal({{ $product->id .'2' }})"
+                            class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition">
+                        Restore
+                    </button>
+                    </form>
+                    @endif
                 </div>
 
             </div>

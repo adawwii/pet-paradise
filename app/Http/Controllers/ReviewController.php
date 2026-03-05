@@ -25,25 +25,25 @@ class ReviewController extends Controller
         Review::create($formData);
         return back()->with('success','Review posted successfully!');
     }
-    //show reveiws for admins
+    //employee and admin show reveiws
     public function showAdmin() {
-        $response=Gate::inspect('is-admin',User::class);
+        $response=Gate::inspect('is-admin-employee',User::class);
         if($response->denied()) {
             return redirect()->route('admin.login')->with('error','Unauthorized Action');
         }
         $reviews=Review::with(['product' => function($query) {
             $query->withTrashed();
-        }])->with('user')
+        }])->with(['user' => fn($q) => $q->withTrashed()])
         ->filter(request()->only(['search','reviewStatus']))
         ->latest()
         ->paginate(10)
         ->withQueryString();
         return view('admin.review',compact('reviews'));
     }
-    //update status
+    //employee and admin update status
     public function updateStatus(Review $review) {
         //auth
-        $response=Gate::inspect('is-admin',User::class);
+        $response=Gate::inspect('is-admin-employee',User::class);
         if($response->denied()) {
             return redirect()->route('admin.login')->with('error','Unauthorized Action');
         }
@@ -61,10 +61,10 @@ class ReviewController extends Controller
         }
         return back()->with('success',"review's status updated successfuly");
     }
-    //delete status
+    //employee and admin delete status
     public function deleteStatus(Review $review) {
         //auth
-        $response=Gate::inspect('is-admin',User::class);
+        $response=Gate::inspect('is-admin-employee',User::class);
         if($response->denied()) {
             return redirect()->route('admin.login')->with('error','Unauthorized Action');
         }

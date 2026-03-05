@@ -36,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('is-admin',function(User $user) {
             return $user->role === 'admin';
         });
+        Gate::define('is-admin-employee',function(User $user) {
+            return Gate::allows('is-admin') || Gate::allows('is-employee');
+        });
         Paginator::useTailwind();
         Authenticate::redirectUsing(function ($request) {
         session()->flash('error', 'Access denied! Authentication required.');

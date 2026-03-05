@@ -62,52 +62,64 @@ Route::get('/order',[OrderController::class,'show'])->name('orders.customer');
 Route::get('/order-processing',[OrderController::class,'orderProcessing'])->name('order.processing');
 //
 Route::get('/check-order',[OrderController::class,'check']);
-//admin dashboard
+//admin&employees dashboard
 Route::get('/dashboard',[AdminController::class, 'index'])->name('dashboard')
-->middleware('can:is-admin')
+->middleware('can:is-admin-employee')
 ;
-//admin logout
+//admin&employees logout
 Route::post('/admin/logout',[AdminController::class,'logout'])->name('admin.logout');
-//admin show orders
-Route::get('/admin/orders',[OrderController::class,'orders'])->name('admin.orders')->middleware('can:is-admin');
-//admin orders update order status
-Route::put('/admin/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus')->middleware('can:is-admin');
-//admin orders export
-Route::get('/admin/orders/export',[OrderController::class,'export'])->name('admin.orders.export')->middleware('can:is-admin');
-//admin single order details
-Route::get('/admin/orders/{order}',[OrderController::class,'singleOrder'])->name('admin.orders.single')->middleware('can:is-admin');
-//admin show products management page
-Route::get('/admin/products',[ProductController::class,'adminProducts'])->name('admin.products')->middleware('can:is-admin');
-//admin show add product page
-Route::get('/admin/products/add',[ProductController::class,'addProduct'])->name('admin.products.add')->middleware('can:is-admin');
-//admin store new product
-Route::post('/admin/products',[ProductController::class,'storeProduct'])->name('admin.product.store')->middleware('can:is-admin');
-//admin show edit product page
-Route::get('/admin/products/{product}/edit',[ProductController::class,'editProduct'])->name('admin.product.edit')->middleware('can:is-admin');
-//admin update product
-Route::put('/admin/products/{product}',[ProductController::class,'updateProduct'])->name('admin.product.update')->middleware('can:is-admin');
-//admin toggle product status
-Route::patch('/admin/products/{product}/toggle', [ProductController::class, 'toggle'])->name('admin.product.toggle')->middleware('can:is-admin');
-//admin show product details page
-Route::get('/admin/products/{product}',[ProductController::class,'productDetails'])->name('admin.products.details')->middleware('can:is-admin');
-//admin delete product
-Route::delete('/admin/products/{product}',[ProductController::class,'deleteProduct'])->name('admin.product.delete')->middleware('can:is-admin');
-//admin restore product
-Route::patch('/admin/products/{product}/restore',[ProductController::class,'restoreProduct'])->name('admin.product.restore')->middleware('can:is-admin');
-//admin show customers management page
-Route::get('/admin/customers',[UserController::class,'adminCustomers'])->name('admin.customers')->middleware('can:is-admin');
-//admin delete customer
-Route::delete('/admin/customers/{customer}',[UserController::class,'deleteCustomer'])->name('admin.customer.delete')->middleware('can:is-admin');
-//admin restore customer
-Route::patch('/admin/customers/{customer}/restore',[UserController::class,'restoreCustomer'])->name('admin.customer.restore')->middleware('can:is-admin');
-//admin customer profile managment page
-Route::get('/admin/customers/{customer}/profile',[UserController::class,'adminAnyProfile'])->name('admin.customer.profile')->middleware('can:is-admin');
-//admin show product's reviews
-Route::get('/admin/reviews',[ReviewController::class,'showAdmin'])->name('admin.review.show')->middleware('can:is-admin');
-//admin update review status
-Route::patch('/admin/review/{review}/status',[ReviewController::class,'updateStatus'])->name('admin.review.status')->middleware('can:is-admin');
-//admin delete review
-Route::delete('/admin/review/{review}/delete',[ReviewController::class,'deleteStatus'])->name('admin.review.delete')->middleware('can:is-admin');
+//admin&employees show orders
+Route::get('/admin/orders',[OrderController::class,'orders'])->name('admin.orders')->middleware('can:is-admin-employee');
+//admin&employees orders update order status
+Route::put('/admin/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus')->middleware('can:is-admin-employee');
+//admin&employees orders export
+Route::get('/admin/orders/export',[OrderController::class,'export'])->name('admin.orders.export')->middleware('can:is-admin-employee');
+//admin&employees single order details
+Route::get('/admin/orders/{order}',[OrderController::class,'singleOrder'])->name('admin.orders.single')->middleware('can:is-admin-employee');
+//admin&employees show products management page
+Route::get('/admin/products',[ProductController::class,'adminProducts'])->name('admin.products')->middleware('can:is-admin-employee');
+//admin&employees show add product page
+Route::get('/admin/products/add',[ProductController::class,'addProduct'])->name('admin.products.add')->middleware('can:is-admin-employee');
+//admin&employees store new product
+Route::post('/admin/products',[ProductController::class,'storeProduct'])->name('admin.product.store')->middleware('can:is-admin-employee');
+//admin&employees show edit product page
+Route::get('/admin/products/{product}/edit',[ProductController::class,'editProduct'])->name('admin.product.edit')->middleware('can:is-admin-employee');
+//admin&employees update product
+Route::put('/admin/products/{product}',[ProductController::class,'updateProduct'])->name('admin.product.update')->middleware('can:is-admin-employee');
+//admin&employees toggle product status
+Route::patch('/admin/products/{product}/toggle', [ProductController::class, 'toggle'])->name('admin.product.toggle')->middleware('can:is-admin-employee');
+//admin&employees show product details page
+Route::get('/admin/products/{product}',[ProductController::class,'productDetails'])->name('admin.products.details')->middleware('can:is-admin-employee');
+//admin&employees delete product
+Route::delete('/admin/products/{product}',[ProductController::class,'deleteProduct'])->name('admin.product.delete')->middleware('can:is-admin-employee');
+//admin&employees restore product
+Route::patch('/admin/products/{product}/restore',[ProductController::class,'restoreProduct'])->name('admin.product.restore')->middleware('can:is-admin-employee');
+//admin&employees show customers management page
+Route::get('/admin/customers',[UserController::class,'adminCustomers'])->name('admin.customers')->middleware('can:is-admin-employee');
+//admin&employees delete customer
+Route::delete('/admin/customers/{customer}',[UserController::class,'deleteCustomer'])->name('admin.customer.delete')->middleware('can:is-admin-employee');
+//admin&employees restore customer
+Route::patch('/admin/customers/{customer}/restore',[UserController::class,'restoreCustomer'])->name('admin.customer.restore')->middleware('can:is-admin-employee');
+//admin&employees customer profile managment page
+Route::get('/admin/customers/{customer}/profile',[UserController::class,'adminAnyProfile'])->name('admin.customer.profile')->middleware('can:is-admin-employee');
+//admin&employees show product's reviews
+Route::get('/admin/reviews',[ReviewController::class,'showAdmin'])->name('admin.review.show')->middleware('can:is-admin-employee');
+//admin&employees update review status
+Route::patch('/admin/review/{review}/status',[ReviewController::class,'updateStatus'])->name('admin.review.status')->middleware('can:is-admin-employee');
+//admin&employees delete review
+Route::delete('/admin/review/{review}/delete',[ReviewController::class,'deleteStatus'])->name('admin.review.delete')->middleware('can:is-admin-employee');
+//super admin show employees managment page
+Route::get('/admin/employees',[UserController::class,'showEmployees'])->name('admin.show.employees')->middleware('can:is-admin');
+//super admin employee profile managment page
+Route::get('/admin/employees/{employee}/profile',[UserController::class,'adminEmployeeProfile'])->name('admin.employee.profile')->middleware('can:is-admin');
+//super admin remove employee
+Route::delete('/admin/employees/{employee}/delete',[UserController::class,'deleteEmployee'])->name('admin.employee.delete')->middleware('can:is-admin');
+//super admin restore employee
+Route::patch('/admin/employees/{employee}/restore',[UserController::class,'restoreEmployee'])->name('admin.employee.restore')->middleware('can:is-admin');
+//super admin show register employee page
+Route::get('/admin/employees/register',[UserController::class,'registerEmployee'])->name('admin.employee.register')->middleware('can:is-admin');
+//super admin store new employee
+Route::post('/admin/employees/store',[UserController::class,'storeEmployee'])->name('admin.employee.store')->middleware('can:is-admin');
 });
 Route::get('/admin/login',[AdminController::class,'showLogin'])->name('admin.login');
 Route::post('/admin/authenticate',[AdminController::class,'authenticate'])->name('admin.authenticate');
