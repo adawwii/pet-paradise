@@ -87,6 +87,9 @@ class ProductController extends Controller
         if(auth()->user()->cannot('is-admin-employee')) {
             return redirect()->route('admin.login')->with('error','Unauthorized action!');
         }
+        if(auth()->user()->cannot('is-admin') && $request->has('trashed')) {
+             $request->offsetUnset('trashed');
+        }
         $products=Product::with('category')
         ->with('reviews')
         ->withAvg('reviews', 'rating')

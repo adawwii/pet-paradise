@@ -41,10 +41,10 @@ class Product extends Model
         // for admin products page to show deleted products (admin only)
         if ($filters['trashed'] ?? false) {
             $response = Gate::inspect('viewDeleted', Product::class);
-            if ($response->denied()) {
-                abort(403, $response->message());
+            if ($response->allowed()) {
+                // abort(403, $response->message());
+                $query->onlyTrashed();
             }
-            $query->onlyTrashed();
         }
 
         return $query;
