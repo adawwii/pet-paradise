@@ -46,17 +46,17 @@
             </div>
 
             <!-- Remember Me -->
-            {{-- <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center justify-between text-sm">
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" name="remember" class="rounded text-orange-500">
+                    <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }} class="rounded text-orange-500">
                     Remember me
                 </label>
 
-                <a href="{{ route('password.request') }}"
+                {{-- <a href="{{ route('password.request') }}"
                    class="text-orange-500 hover:underline">
                     Forgot password?
-                </a>
-            </div> --}}
+                </a> --}}
+            </div>
 
             <!-- Submit -->
             <button

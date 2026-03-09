@@ -50,8 +50,10 @@ class UserController extends Controller
             'email'=>['required','email'],
             'password'=>'required'
         ]);
+        //remember me 
+        $remember=$request->boolean('remember');
         //attempt to login
-        if(auth()->attempt($formData)) {
+        if(auth()->attempt($formData,$remember)) {
             $request->session()->regenerate();
             $user=auth()->user();
             //attempt succesfuly

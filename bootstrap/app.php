@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/stripe/webhook',
         ]);
+        // $middleware->statefulApi();
+        //$middleware->web(): Use this if you need to add custom middleware specifically to the web route group.
         
     })
     ->withExceptions(function (Exceptions $exceptions): void {

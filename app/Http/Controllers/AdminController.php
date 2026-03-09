@@ -42,7 +42,10 @@ class AdminController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]); 
-        if (auth()->attempt($credentials)) {
+        //remember me 
+        $remember=$request->boolean('remember');
+
+        if (auth()->attempt($credentials,$remember)) {
             $request->session()->regenerate();
 
             $response=Gate::inspect('is-admin-employee',User::class);

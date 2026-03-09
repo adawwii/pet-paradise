@@ -39,13 +39,13 @@
             </div>
 
             <!-- Remember Me -->
-            {{-- <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between">
                 <label class="flex items-center space-x-2">
-                    <input type="checkbox" name="remember" class="h-4 w-4 text-blue-600 rounded">
+                    <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }} class="h-4 w-4 text-blue-600 rounded">
                     <span class="text-gray-700 text-sm">Remember Me</span>
                 </label>
-                <a href="#" class="text-blue-600 text-sm hover:underline">Forgot Password?</a>
-            </div> --}}
+                {{-- <a href="#" class="text-blue-600 text-sm hover:underline">Forgot Password?</a> --}}
+            </div>
 
             <!-- Submit -->
             <button type="submit"
