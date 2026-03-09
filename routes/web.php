@@ -32,6 +32,10 @@ Route::middleware(['guest'])
 });
 Route::middleware(['auth'])
 ->group(function() {
+//Email verfication handler
+Route::get('/email/verify/{id}/{hash}',[UserController::class,'emailVerification'])->middleware('signed')->name('verification.verify');
+//email verification notice
+Route::get('/email/verify',[UserController::class,'verificationNotice'])->name('verification.notice');
 //logout customer user
 Route::post('/logout',[UserController::class,'logout']);
 //show customer user profile page
@@ -43,7 +47,7 @@ Route::get('/user/profile/edit',[UserController::class,'editCustomer'])->name('e
 //update customer user date
 Route::put('/user/profile/edit/{user}',[UserController::class,'update']);
 //store new review
-Route::post('/addReview',[ReviewController::class,'store']);
+Route::post('/addReview',[ReviewController::class,'store'])->middleware('verified');
 //add to cart
 Route::post('/add/cart/{product}',[CartController::class,'add'])->name('cart.add');
 //show cart
@@ -53,9 +57,9 @@ Route::put('/update/cart/{cartItem}',[CartController::class,'update'])->name('ca
 //remove cart item
 Route::delete('/remove/cart/{cartItem}',[CartController::class,'remove'])->name('cart.remove');
 //show checkout page
-Route::get('/checkout',[CheckoutController::class,'show'])->name('checkout');
+Route::get('/checkout',[CheckoutController::class,'show'])->name('checkout')->middleware('verified');
 //procced payment
-Route::post('/payment',[CheckoutController::class,'payment'])->name('payment');
+Route::post('/payment',[CheckoutController::class,'payment'])->name('payment')->middleware('verified');
 //show single order 
 Route::get('/order',[OrderController::class,'show'])->name('orders.customer');
 //

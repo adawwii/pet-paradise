@@ -89,8 +89,8 @@
                     <p class="text-gray-500">
                         {{ auth()->user()->email }}
                     </p>
-                    <span class="inline-block mt-2 px-3 py-1 text-sm bg-orange-100 text-orange-600 rounded-full">
-                        Member
+                    <span class="inline-block mt-2 px-3 py-1 text-sm {{ auth()->user()->email_verified_at ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600' }}  rounded-full">
+                       {{ auth()->user()->email_verified_at ? 'Verified Member' : 'Unverified Member' }} 
                     </span>
                 </div>
             </div>

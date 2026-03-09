@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -27,10 +29,21 @@ class UserController extends Controller
         $formData['password']=bcrypt($formData['password']);
         //store in the database
         $user=User::create($formData);
+        event(new Registered($user));
         //login
         auth()->login($user);
         
         return redirect('/')->with('success',"Welcome $user->name");
+    }
+    //email varification handling
+    public function emailVerification(EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect()->route('profile')->with('success','Your account have been verified successfuly');
+    }
+    //email verification notice
+    public function verificationNotice() {
+        return back()->with('info','Verify your account to complete this action');
     }
     //logout user
     public function logout(Request $request) {

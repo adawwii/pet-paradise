@@ -25,7 +25,7 @@
     x-show="show" 
     x-init="setTimeout(() => show = false, 4000)"
     x-transition class="fixed top-0 left-1/2 transform -translate-x-1/2 text-white px-48 py-3">
-        <div class="bg-blue-100 text-blue-700 px-4 py-3 rounded-lg">
+        <div class="bg-yellow-100 text-yellow-700 px-4 py-3 rounded-lg">
             {{ session('info') }}
         </div>
     </div>
