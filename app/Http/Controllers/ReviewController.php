@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Review;
-use App\Models\User;
+// use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+// use Illuminate\Support\Facades\Gate;
 
 class ReviewController extends Controller
 {
     //store Review
     public function store(Request $request) {
-        $response = Gate::inspect('create',Review::class);
-        if($response->denied()) {
-            return back()->with('error',$response->message());
-        }
+        
+        // if(auth()->user()->cannot('make reviews')) {
+        //     return back()->with('error','Unauthorized action');
+        // }
         $formData=$request->validate([
             'rating'=>'required',
             'comment'=>'required'
@@ -27,10 +27,9 @@ class ReviewController extends Controller
     }
     //employee and admin show reveiws
     public function showAdmin() {
-        $response=Gate::inspect('is-admin-employee',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
+        // if(auth()->user()->cannot('manage reviews')) {
+        //     return back()->with('error','Unauthorized action');
+        // }
         $reviews=Review::with(['product' => function($query) {
             $query->withTrashed();
         }])->with(['user' => fn($q) => $q->withTrashed()])
@@ -43,10 +42,9 @@ class ReviewController extends Controller
     //employee and admin update status
     public function updateStatus(Review $review) {
         //auth
-        $response=Gate::inspect('is-admin-employee',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
+        // if(auth()->user()->cannot('manage reviews')) {
+        //     return back()->with('error','Unauthorized action');
+        // }
         //
         if(request()->has('approved')){
             $review->update([
@@ -64,10 +62,9 @@ class ReviewController extends Controller
     //employee and admin delete status
     public function deleteStatus(Review $review) {
         //auth
-        $response=Gate::inspect('is-admin-employee',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
+        // if(auth()->user()->cannot('manage reviews')) {
+        //     return back()->with('error','Unauthorized action');
+        // }
 
         $review->delete();
         return back()->with('success','review deleted successfuly');

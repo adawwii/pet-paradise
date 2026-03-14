@@ -16,9 +16,9 @@
                 <div class="flex flex-col items-center gap-4">
            <!-- Profile Image -->
                 <div class="relative">
-                  <form action="/user/profile/image/{{ auth()->user()->id }}" enctype="multipart/form-data" method="post">
+                  <form action="/user/profile/image/{{ auth()->user()->id }}" enctype="multipart/form-data" method="POST">
                       @csrf
-                      @method('PUT')
+                      @method('PATCH')
                       @if (auth()->user()->image)
                       
                       <img
@@ -60,7 +60,9 @@
                   onchange="previewProfileImage(event)"
                 />
                      <!-- Action Buttons -->
-  <div id="photoActions" class="hidden mt-4 flex gap-3">
+  <div id="photoActions" class="hidden mt-4
+   {{-- flex  --}}
+   gap-3">
     <button
       type="submit"
       class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"

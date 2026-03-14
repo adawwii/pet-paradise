@@ -53,7 +53,7 @@
                             <!-- Quantity -->
                             <form method="POST" action="{{ route('cart.update', $item->id) }}">
                                 @csrf
-                                @method('PUT')
+                                @method('PATCH')
 
                                 <input type="number"
                                        name="quantity"

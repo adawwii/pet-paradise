@@ -11,11 +11,9 @@ class CartsPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): Response
+    public function viewAny(User $user): bool
     {
-        return $user->id
-            ? Response::allow()
-            : Response::deny('you dont have permission to access the cart!');
+        return false;
     }
 
     /**
@@ -24,7 +22,7 @@ class CartsPolicy
     public function view(User $user, Carts $cart): Response
     {
 
-        return $user->id === $cart->user_id
+        return $user->id === $cart->user_id || $user->hasRole('Super Admin')
             ? Response::allow()
             : Response::deny('Unauthorized Action!');
     }
@@ -32,11 +30,9 @@ class CartsPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user): bool
     {
-        return $user->id
-            ? Response::allow()
-            : Response::deny('Unauthorized Action!');
+        return true;
     }
 
     /**
@@ -44,7 +40,7 @@ class CartsPolicy
      */
     public function update(User $user, Carts $carts): Response
     {
-        return $user->id === $carts->user_id
+        return $user->id === $carts->user_id || $user->hasRole('Super Admin')
             ? Response::allow()
             : Response::deny('Unauthorized Action!');
     }
@@ -54,7 +50,7 @@ class CartsPolicy
      */
     public function delete(User $user, Carts $carts): Response
     {
-        return $user->id === $carts->user_id
+        return $user->id === $carts->user_id || $user->hasRole('Super Admin')
            ? Response::allow()
            : Response::deny('Unauthorized Action!');
     }

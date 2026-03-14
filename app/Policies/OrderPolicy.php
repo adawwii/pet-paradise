@@ -4,18 +4,16 @@ namespace App\Policies;
 
 use App\Models\Order;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+// use Illuminate\Auth\Access\Response;
 
 class OrderPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): Response
+    public function viewAny(User $user): bool
     {
-        return $user->id
-            ? Response::allow()
-            : Response::deny('Unauthorized Action!');
+        return $user->hasRole('customer') || $user->can('manage orders');
     }
 
     /**
@@ -23,17 +21,15 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        return false;
+        return $user->can('manage orders') || $user->id === $order->user_id;
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user): bool
     {
-        return $user->id
-            ? Response::allow()
-            : Response::deny('Unauthorized Action!');
+        return $user->can('make orders');
     }
 
     /**
@@ -41,16 +37,14 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
-        return false;
+        return $user->can('manage orders');
     }
     /**
      * Determine whether the admin can update the order.
      */
-    public function updateAny(User $user): Response
+    public function updateAny(User $user): bool
     {
-        return $user->id
-            ? Response::allow()
-            : Response::deny('Unauthorized Action!');
+        return $user->can('manage orders');
     }
 
     /**

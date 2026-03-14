@@ -41,8 +41,7 @@ class CreateAdmin extends Command
             'name' => $name,
             'email' => $email,
             'password' => bcrypt($password),
-            'role' => 'admin',
-        ]);
+        ])->assignRole('Super Admin');
         $this->info('Admin user created successfully!');
         
         

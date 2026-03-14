@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+// use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -28,7 +28,7 @@ class UserController extends Controller
         //encrypt password
         $formData['password']=bcrypt($formData['password']);
         //store in the database
-        $user=User::create($formData);
+        $user=User::create($formData)->assignRole('customer');
         event(new Registered($user));
         //login
         auth()->login($user);
@@ -38,7 +38,8 @@ class UserController extends Controller
     //email varification handling
     public function emailVerification(EmailVerificationRequest $request) {
         $request->fulfill();
-
+        $user = $request->user();
+        $user->givePermissionTo(['make reviews','make orders']);
         return redirect()->route('profile')->with('success','Your account have been verified successfuly');
     }
     //email verification notice
@@ -77,9 +78,6 @@ class UserController extends Controller
     }
     //show Profile
     public function profile() {
-        // if(Gate::denies('is-employee')) {
-        //     return redirect()->route('home')->with('error','unAuthourized Action!!!');
-        // }
         return view('user.profile');
     }
     //Update image
@@ -132,6 +130,14 @@ class UserController extends Controller
             $formData['password']=bcrypt($validated_password['password']);
 
         }
+        //check for the email 
+        if($user->email !== $formData['email']){
+            $user->revokePermissionTo(['make reviews','make orders']);
+            $formData['email_verified_at']=null;
+            $user->update($formData);
+            $user->sendEmailVerificationNotification();
+        return redirect(route('profile'))->with('success','Profile updated successfully!');
+        }
         //update action on database
         $user->update($formData);
         //success redirect
@@ -141,12 +147,11 @@ class UserController extends Controller
     } 
     //employee and admin show all customers
     public function adminCustomers() {
-        $response=Gate::inspect('is-admin-employee',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action!');
-        }
+        // if(auth()->user()->cannot('view dashboard')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
         $customers=User::withCount('orders')
-        ->where('role','customer')
+        ->role('customer')
         ->filter(request()->only(['search','status','account_type']))
         ->latest()
         ->paginate(10)
@@ -155,30 +160,27 @@ class UserController extends Controller
     }
     //employee and admin delete customer
     public function deleteCustomer(User $customer) {
-        $response=Gate::inspect('is-admin-employee',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action!');
-        }
+        // if(auth()->user()->cannot('manage customers')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
 
         $customer->delete();
         return back()->with('success','Customer Deleted Successfully!');
     }
     //employee and admin restore customer
     public function restoreCustomer($customer) {
-        $response=Gate::inspect('is-admin-employee',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action!');
-        }
+        // if(auth()->user()->cannot('manage customers')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
         $customer=User::onlyTrashed()->where('id',$customer)->first();
         $customer->restore();
         return back()->with('success','Customer Restored Successfully!');
     }
     //employee and admin show customer's profile
     public function adminAnyProfile($customer) {
-        $response=Gate::inspect('is-admin-employee',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action!');
-        }
+        // if(auth()->user()->cannot('manage customers')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
         $customer=User::withTrashed()
         ->where('id',$customer)
         ->first();
@@ -195,11 +197,10 @@ class UserController extends Controller
     }
     //superadmin show employees managment page
     public function showEmployees() {
-        $response=Gate::inspect('is-admin',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
-        $employees=User::where('role','employee')
+        // if(auth()->user()->cannot('manage employees')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
+        $employees=User::role('employee')
         ->filter(request()->only(['search','account_type']))
         ->latest()
         ->paginate(10)
@@ -208,15 +209,15 @@ class UserController extends Controller
     }
     //super admin show employee profile managment page
     public function adminEmployeeProfile($employee) {
-          $response=Gate::inspect('is-admin',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action!');
-        }
+        // if(auth()->user()->cannot('manage employees')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
         $employee=User::withTrashed()
         ->where('id',$employee)
         ->first();
         $products=$employee->products()
         ->withTrashed()
+        ->latest()
         ->paginate(5,['*'],'productPage')
         ->withQueryString();
         $reviews=$employee->reviews()->paginate(1,['*'],'reviewsPage')
@@ -225,23 +226,21 @@ class UserController extends Controller
     }
     //super admin remove employee
     public function deleteEmployee(User $employee) {
-        $response=Gate::inspect('is-admin',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
+        // if(auth()->user()->cannot('manage employees')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
 
         $employee->delete();
         return back()->with('success','Employee removed Successfuly');
     }
     //super admin restore employee
     public function restoreEmployee($employee) {
-        $response=Gate::inspect('is-admin',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
+        // if(auth()->user()->cannot('manage employees')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
 
         $employee=User::onlyTrashed()
-        ->where('role','employee')
+        ->role('employee')
         ->where('id',$employee)
         ->first();
         $employee->restore();
@@ -249,18 +248,16 @@ class UserController extends Controller
     }
     //super admin register employee
     public function registerEmployee() {
-        $response=Gate::inspect('is-admin',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
+        // if(auth()->user()->cannot('manage employees')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
         return view('user.admin_employee_register');
     }
     //super admin store new employee
     public function storeEmployee(Request $request) {
-        $response=Gate::inspect('is-admin',User::class);
-        if($response->denied()) {
-            return redirect()->route('admin.login')->with('error','Unauthorized Action');
-        }
+        // if(auth()->user()->cannot('manage employees')) {
+        //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
+        // }
         //validate form data
         $formData=$request->validate([
             'name' => 'required||min:3||max:255',
@@ -269,10 +266,9 @@ class UserController extends Controller
         ]);
         //encrypt password
         $formData['password']=bcrypt($formData['password']);
-        //insert employee role
-        $formData['role']='employee';
+
         //store in the database
-        User::create($formData);
+        User::create($formData)->assignRole('employee');
 
         return back()->with('success','employee registerd successfuly');
     }

@@ -40,13 +40,13 @@ class CheckoutController extends Controller
              ],422);
          }
          $formFields=$validator->validated();
-         $response = Gate::inspect('create',Order::class);
-         if($response->denied()) {
+         
+         if($user->cannot('make orders')) {
 
              return response()->json([
             'success' => false,
             'validation_error' =>false,
-            'message' => $response->message()
+            'message' => "Unauthorized Action!"
         ]);
          }
          $amount=$user->cart->cartItems->sum(function($item){
@@ -178,11 +178,16 @@ class CheckoutController extends Controller
 
     //show checkout page
     public function show() {
-        $response = Gate::inspect('view',auth()->user()->cart);
+        $cart=auth()->user()->cart;
+        if (!$cart) {
+            return redirect()->route('home')->with('error', 'Your cart is empty!');
+        }
+        $response = Gate::inspect('view',$cart);
          if($response->denied()) {
             return redirect()->route('home')->with('error',$response->message());
          }
-        return view('components.checkout');
+         $cart->load('cartItems.product');
+        return view('components.checkout',compact('cart'));
     }
    
 }

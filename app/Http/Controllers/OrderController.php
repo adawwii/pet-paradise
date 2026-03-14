@@ -4,16 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+// use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
     //show customer orders
     public function show() {
-      $response = Gate::inspect('viewAny',Order::class);
-      if($response->denied()) {
-        return redirect()->route('home')->with('error',$response->message());
-      }
+      // $response = Gate::inspect('viewAny',Order::class);
+      // if($response == false) {
+      //   return redirect()->route('home')->with('error','Unauthorized action');
+      // }
         $orders=auth()->user()->orders;
         return view('orders.customer_orders',compact('orders'));
     }
@@ -54,10 +54,9 @@ class OrderController extends Controller
     }
     //show all orders for admin
     public function orders(Request $request) {
-      $response = Gate::inspect('viewAny',Order::class);
-      if($response->denied()) {
-        return redirect()->route('admin.login')->with('error',$response->message());
-      }
+      // if(auth()->user()->can('manage orders')) {
+      //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
+      // }
       $orders=Order::with(['user'=>function($query){
         $query->withTrashed();
       }])
@@ -69,11 +68,9 @@ class OrderController extends Controller
     }
     //update order status by admin
     public function updateStatus(Request $request,Order $order) {
-      $response = Gate::inspect('updateAny',Order::class);
-      if($response->denied()) {
-        session()->flash('error',$response->message());
-        return response()->json(['error' => $response->message()]);
-      }
+      // if(auth()->user()->can('manage orders')) {
+      //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
+      // }
       if($order->status === 'completed' || $order->status === 'cancelled' || $order->status === 'pending') {
         session()->flash('error','You cannot update status of completed, cancelled or pending orders');
         return response()->json(['error' => 'You cannot update status of completed, cancelled or pending orders']);
@@ -88,10 +85,9 @@ class OrderController extends Controller
     }
     //export orders to csv
     public function export() {
-      $response = Gate::inspect('viewAny',Order::class);
-      if($response->denied()) {
-        return redirect()->route('admin.login')->with('error',$response->message());
-      }
+      // if(auth()->user()->can('manage orders')) {
+      //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
+      // }
       $fileName = 'orders.csv';
       $orders = Order::with('user')->get();
       $headers = [
@@ -117,11 +113,10 @@ class OrderController extends Controller
     }
     //show single order details for admin
     public function singleOrder(Order $order) {
-      $response = Gate::inspect('viewAny', Order::class);
-      if($response->denied()) {
-        return redirect()->route('admin.login')->with('error',$response->message());
-      }
+      // if(auth()->user()->can('manage orders')) {
+      //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
+      // }
       $user = $order->user()->withTrashed()->first();
       return view('orders.admin_single_order',compact('order','user'));
-     }
+    }
 }

@@ -38,7 +38,7 @@ class Product extends Model
             });
         }
 
-        // for admin products page to show deleted products (admin only)
+        // for super admin products page to show deleted products (admin only)
         if ($filters['trashed'] ?? false) {
             $response = Gate::inspect('viewDeleted', Product::class);
             if ($response->allowed()) {

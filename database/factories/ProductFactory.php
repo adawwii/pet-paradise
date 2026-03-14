@@ -20,7 +20,7 @@ class ProductFactory extends Factory
     {
         return [
             //
-            'user_id' => User::where('role', 'employee')->inRandomOrder()->first()->id,
+            'user_id' => User::role('employee')->inRandomOrder()->first()->id,
             'category_id' => Category::inRandomOrder()->first()->id,
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph(),

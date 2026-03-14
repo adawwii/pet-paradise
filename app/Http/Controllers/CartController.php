@@ -12,10 +12,7 @@ class CartController extends Controller
 {
     //add to card
     public function add(Product $product) {
-        $response = Gate::inspect('create',Carts::class);
-        if ($response->denied()) {
-            return back()->with('error',$response->message());
-        }
+        
        $user=auth()->user();
        //check the user has a cart
        $cart=$user->cart ?? Carts::create([
@@ -65,12 +62,16 @@ class CartController extends Controller
     //show cart
     public function show() {
         $user=auth()->user();
-        $response = Gate::inspect('viewAny',Carts::class);
+        $cart=$user->cart;
+        if (!$cart) {
+        return view('cart.index',compact('cart'));
+        }
+        $response = Gate::inspect('view',$cart);
         if ($response->denied()) {
             return redirect()->route('home')->with('error',$response->message());
             }
         //check products in cart are active and have enough stock using map function
-        $deletedItems= $user->cart->cartItems()
+        $deletedItems= $cart->cartItems()
         ->whereHas('product', function ($query) {
             $query->where('is_active', false)
             ->orWhereColumn('stock', '<', 'cart_items.quantity');
@@ -79,16 +80,17 @@ class CartController extends Controller
         if($deletedItems>0){
             session()->flash('info','some items removed from your cart due to stock changes!');
         }
-            $cart=$user->cart;
+        $cart->load('cartItems.product');
         return view('cart.index',compact('cart'));
     }
     //update cart item
     public function update(Request $request , CartItem $cartItem) {
-        $response = Gate::inspect('update',auth()->user()->cart);
+        $cart=$cartItem->cart;
+        $response = Gate::inspect('update',$cart);
         if ($response->denied()) {
             return back()->with('error',$response->message());
         }
-        if(blank($request->quantity)||$request->quantity==0){
+        if(blank($request->quantity)||$request->quantity < 1){
             return back()->with('info','minimum quantity is one!');
         }
       $quantity=['quantity'=>$request->quantity];
@@ -97,13 +99,13 @@ class CartController extends Controller
     }
     //delete cart item
     public function remove(CartItem $cartItem){
-
-        $response = Gate::inspect('delete',auth()->user()->cart);
+        $cart=$cartItem->cart;
+        $response = Gate::inspect('delete',$cart);
         if ($response->denied()) {
             return back()->with('error',$response->message());
         }
-        $cart=$cartItem->cart;
         $cartItem->delete();
+        $cart->load('cartItems');
         if($cart->cartItems->count()>=1){
             return back()->with('info','item removed!');
             }

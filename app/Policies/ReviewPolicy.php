@@ -11,17 +11,17 @@ class ReviewPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Review $review): bool
+    public function view(?User $user, Review $review): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class ReviewPolicy
      */
     public function create(User $user): Response
     {
-        return $user->id
+        return $user->can('make reviews')
             ? Response::allow()
             : Response::deny('Unauthorized Action!');
     }
@@ -39,7 +39,7 @@ class ReviewPolicy
      */
     public function update(User $user, Review $review): bool
     {
-        return false;
+        return $user->can('manage reviews');
     }
 
     /**
@@ -47,7 +47,7 @@ class ReviewPolicy
      */
     public function delete(User $user, Review $review): bool
     {
-        return false;
+        return $user->can('manage reviews');
     }
 
     /**
@@ -55,7 +55,7 @@ class ReviewPolicy
      */
     public function restore(User $user, Review $review): bool
     {
-        return false;
+        return $user->can('manage reviews');
     }
 
     /**
@@ -63,6 +63,6 @@ class ReviewPolicy
      */
     public function forceDelete(User $user, Review $review): bool
     {
-        return false;
+        return $user->can('manage reviews');
     }
 }

@@ -106,7 +106,7 @@
 
                 @php $total = 0; @endphp
 
-                @foreach(auth()->user()->cart->cartItems as $item)
+                @foreach($cart->cartItems as $item)
                     @php
                         $subtotal = $item->product->price * $item->quantity;
                         $total += $subtotal;
