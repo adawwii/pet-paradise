@@ -119,6 +119,13 @@
                             Restore
                         </button>
                         </form>
+                         <form id="deleteForm-{{ $employee->id }}" action="{{ route('admin.employee.forceDelete', $employee->id) }}" method="POST" class="inline">
+                            @csrf
+                            @method('DELETE')
+                        <button type="button" onclick="openDeleteModal({{ $employee->id }})" class="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200">
+                             Delete Permanently 
+                        </button>
+                        </form>
                         @else
                         <form id="deleteForm-{{ $employee->id }}" action="{{ route('admin.employee.delete', $employee->id) }}" method="POST" class="inline">
                             @csrf

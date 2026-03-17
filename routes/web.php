@@ -87,7 +87,7 @@ Route::post('/admin/logout',[AdminController::class,'logout'])->name('admin.logo
 //admin&employees show orders
 Route::get('/admin/orders',[OrderController::class,'orders'])->name('admin.orders');
 //admin&employees orders update order status
-Route::put('/admin/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+Route::patch('/admin/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 //admin&employees orders export
 Route::get('/admin/orders/export',[OrderController::class,'export'])->name('admin.orders.export');
 //admin&employees single order details
@@ -135,6 +135,8 @@ Route::get('/admin/employees',[UserController::class,'showEmployees'])->name('ad
 Route::get('/admin/employees/{employee}/profile',[UserController::class,'adminEmployeeProfile'])->name('admin.employee.profile');
 //super admin remove employee
 Route::delete('/admin/employees/{employee}/delete',[UserController::class,'deleteEmployee'])->name('admin.employee.delete');
+//super admin force delete employee
+Route::delete('/admin/employees/{employee}/forceDelete',[UserController::class,'forceDeleteEmployee'])->name('admin.employee.forceDelete');
 //super admin restore employee
 Route::patch('/admin/employees/{employee}/restore',[UserController::class,'restoreEmployee'])->name('admin.employee.restore');
 //super admin show register employee page

@@ -111,10 +111,12 @@
                         <td class="px-6 py-4">
                             <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="post">
                                 @csrf
-                                @method('PUT')
+                                @method('PATCH')
                             <select
                                 data-id="{{ $order->id }}"
-                                class="status-badge status-select border rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500">
+                                class="status-badge status-select border rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                                {{-- onchange="this.form.submit()" --}}
+                                >
 
                                 <option value="pending" {{ $order->status=='pending'?'selected':'' }}>Pending</option>
                                 <option value="processing" {{ $order->status=='processing'?'selected':'' }}>Processing</option>
@@ -194,7 +196,7 @@ document.querySelectorAll('.status-select').forEach(select => {
         const status = this.value;
 
         fetch(`/admin/orders/${orderId}/status`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'

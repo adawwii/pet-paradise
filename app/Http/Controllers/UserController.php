@@ -3,36 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
+use App\Services\UserService;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rule;
+// use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    //
+    protected $userService;
+
+    public function __construct(UserService $userService){
+        $this->userService = $userService;
+    }
     //show register
     public function show() {
         return view('user.register');
     }
     //store new User 
     public function store(Request $request) {
-        // dd($request);
-        //validate form data
-        $formData=$request->validate([
-            'name'=>['required','min:3','max:255'],
-            'email'=>['required','email',Rule::unique('users','email')],
-            'password'=>['required','confirmed','min:3','max:255']
-        ]);
-        //encrypt password
-        $formData['password']=bcrypt($formData['password']);
-        //store in the database
-        $user=User::create($formData)->assignRole('customer');
-        event(new Registered($user));
-        //login
-        auth()->login($user);
-        
+        $user=$this->userService->storeUser($request);
         return redirect('/')->with('success',"Welcome $user->name");
     }
     //email varification handling
@@ -60,21 +49,12 @@ class UserController extends Controller
     }
     //authenticate user login
     public function authenticate(Request $request) {
-        $formData=$request->validate([
-            'email'=>['required','email'],
-            'password'=>'required'
-        ]);
-        //remember me 
-        $remember=$request->boolean('remember');
-        //attempt to login
-        if(auth()->attempt($formData,$remember)) {
-            $request->session()->regenerate();
-            $user=auth()->user();
-            //attempt succesfuly
-            return redirect('/')->with('success',"Welcome $user->name");
-        }
-        //attempt faild
-        return back()->withErrors(['email' => 'Invalid Credentials!'])->onlyInput('email');
+        $auth=$this->userService->authenticateUser($request);
+        // dd($auth);
+        //attempt login
+       return $auth==true
+            ? redirect('/')->with('success',"Welcome $auth->name")
+            : back()->withErrors(['email' => 'Invalid Credentials!'])->onlyInput('email');
     }
     //show Profile
     public function profile() {
@@ -86,18 +66,14 @@ class UserController extends Controller
         if($user->id != auth()->id()) {
             return redirect('/')->with('error', 'Unauthorized Action');
         }
-        //data verification
-        if($request->hasFile('profile_photo')){
-            $formFields['image']=$request->file('profile_photo')
-            ->store('logos','public')
-            ;
-            $user->update($formFields);
+
+        $attempt=$this->userService->profileImage($request,$user);
+        if($attempt){
             return back()->with('success','Image Updated Successfully!');
         }
         //wrong data
         return back()->with('error','Try again later!');
     }
-
     //show customer user edit form
     public function editCustomer() {
         return view('user.edit_customer');
@@ -107,55 +83,17 @@ class UserController extends Controller
         if($user->id != auth()->id()) {
             return redirect('/')->with('error','Unauthorized Action');
         }
-        $formData=$request->validate([
-            'name'=>['required',
-            'min:3','max:255'
-            ],
-            'email'=>[
-                'required',
-                'max:255',
-                'email',
-                Rule::unique('users','email')->ignore($user->id)
-                ]
-        ]);
-        //check for changing in password
-        if($request->filled('password')) {
-            $validated_password=$request->validate([
-                'password'=>[
-                    'min:3',
-                    'max:255',
-                    'confirmed'
-                ]
-            ]);
-            $formData['password']=bcrypt($validated_password['password']);
-
-        }
-        //check for the email 
-        if($user->email !== $formData['email']){
-            $user->revokePermissionTo(['make reviews','make orders']);
-            $formData['email_verified_at']=null;
-            $user->update($formData);
-            $user->sendEmailVerificationNotification();
-        return redirect(route('profile'))->with('success','Profile updated successfully!');
-        }
-        //update action on database
-        $user->update($formData);
+        $this->userService->editCustomer($request, $user);
         //success redirect
         return redirect(route('profile'))->with('success','Profile updated successfully!');
-
-
     } 
     //employee and admin show all customers
     public function adminCustomers() {
         // if(auth()->user()->cannot('view dashboard')) {
         //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         // }
-        $customers=User::withCount('orders')
-        ->role('customer')
-        ->filter(request()->only(['search','status','account_type']))
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+        $customers=$this->userService->showCustomers();
+
         return view('user.admin_customers',compact('customers'));
     }
     //employee and admin delete customer
@@ -172,8 +110,7 @@ class UserController extends Controller
         // if(auth()->user()->cannot('manage customers')) {
         //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         // }
-        $customer=User::onlyTrashed()->where('id',$customer)->first();
-        $customer->restore();
+        $this->userService->restoreCustomer($customer);
         return back()->with('success','Customer Restored Successfully!');
     }
     //employee and admin show customer's profile
@@ -181,30 +118,15 @@ class UserController extends Controller
         // if(auth()->user()->cannot('manage customers')) {
         //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         // }
-        $customer=User::withTrashed()
-        ->where('id',$customer)
-        ->first();
-        $orders=$customer->orders()
-        ->with('orderItems')
-        ->with(['orderItems.product' => function($query) {
-            $query->withTrashed();
-        }])
-        ->paginate(5,['*'],'ordersPage')
-        ->withQueryString();
-        $reviews=$customer->reviews()->paginate(1,['*'],'reviewsPage')
-        ->withQueryString();
-        return view('user.admin_customer_profile',compact('customer','orders','reviews'));
+        $data=$this->userService->customerProfile($customer);
+        return view('user.admin_customer_profile',$data);
     }
     //superadmin show employees managment page
     public function showEmployees() {
         // if(auth()->user()->cannot('manage employees')) {
         //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         // }
-        $employees=User::role('employee')
-        ->filter(request()->only(['search','account_type']))
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+        $employees=$this->userService->showEmployees();
         return view('user.admin_employee_managment',compact('employees'));
     }
     //super admin show employee profile managment page
@@ -212,17 +134,8 @@ class UserController extends Controller
         // if(auth()->user()->cannot('manage employees')) {
         //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         // }
-        $employee=User::withTrashed()
-        ->where('id',$employee)
-        ->first();
-        $products=$employee->products()
-        ->withTrashed()
-        ->latest()
-        ->paginate(5,['*'],'productPage')
-        ->withQueryString();
-        $reviews=$employee->reviews()->paginate(1,['*'],'reviewsPage')
-        ->withQueryString();
-        return view('user.admin_employee_profile',compact('employee','products','reviews'));
+        $data=$this->userService->employeeProfile($employee);
+        return view('user.admin_employee_profile',$data);
     }
     //super admin remove employee
     public function deleteEmployee(User $employee) {
@@ -233,17 +146,19 @@ class UserController extends Controller
         $employee->delete();
         return back()->with('success','Employee removed Successfuly');
     }
+    //super admin force delete employee
+    public function forceDeleteEmployee($employee){
+        $this->userService->forceDeleteEmployee($employee);
+        return back()->with('success','Employee Permanently Deleted');
+    }
     //super admin restore employee
     public function restoreEmployee($employee) {
         // if(auth()->user()->cannot('manage employees')) {
         //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         // }
 
-        $employee=User::onlyTrashed()
-        ->role('employee')
-        ->where('id',$employee)
-        ->first();
-        $employee->restore();
+        $this->userService->restoreEmployee($employee);
+
         return back()->with('success','Employee restored successfuly');
     }
     //super admin register employee
@@ -258,17 +173,7 @@ class UserController extends Controller
         // if(auth()->user()->cannot('manage employees')) {
         //     return redirect()->route('admin.login')->with('error','Unauthorized Action!');
         // }
-        //validate form data
-        $formData=$request->validate([
-            'name' => 'required||min:3||max:255',
-            'email' => ['required','email',Rule::unique('users','email')],
-            'password' => 'required||min:8||max:255||confirmed'
-        ]);
-        //encrypt password
-        $formData['password']=bcrypt($formData['password']);
-
-        //store in the database
-        User::create($formData)->assignRole('employee');
+        $this->userService->storeEmployee($request);
 
         return back()->with('success','employee registerd successfuly');
     }

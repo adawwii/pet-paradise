@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
+    protected $orderService;
+    
+    public function __construct(OrderService $orderService){
+      $this->orderService = $orderService;
+    }
     //show customer orders
     public function show() {
       // $response = Gate::inspect('viewAny',Order::class);
@@ -31,39 +37,20 @@ class OrderController extends Controller
         if (!session()->has('last_payment_intent')) {
         return redirect()->route('home'); 
         }
-     $paymentIntentId = session('last_payment_intent');
+        $attempt=$this->orderService->orderCreationCheck();
 
-      if (!$paymentIntentId) {
-        return response()->json(['exists' => false]);
-        }
+     
 
-     $order = Order::where('stripe_payment_intent_id', $paymentIntentId)->first();
-
-      if ($order) {
-        session()->forget('last_payment_intent'); // clean session
-
-        session()->flash('success', 'Your order has been placed successfully!');
-         return response()->json([
-            'exists' => true
-         ]);
-       }
-
-     return response()->json([
-        'exists' => false
-      ]);
+        return $attempt
+           ? response()->json(['exists' => true])
+           : response()->json(['exists' => false ]);
     }
     //show all orders for admin
     public function orders(Request $request) {
       // if(auth()->user()->can('manage orders')) {
       //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
       // }
-      $orders=Order::with(['user'=>function($query){
-        $query->withTrashed();
-      }])
-      ->filter($request->only('search','status'))
-      ->latest()
-      ->paginate(8)
-      ->withQueryString();
+      $orders=$this->orderService->allOrders($request);
       return view('orders.admin_orders',compact('orders')); 
     }
     //update order status by admin
@@ -71,45 +58,22 @@ class OrderController extends Controller
       // if(auth()->user()->can('manage orders')) {
       //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
       // }
-      if($order->status === 'completed' || $order->status === 'cancelled' || $order->status === 'pending') {
-        session()->flash('error','You cannot update status of completed, cancelled or pending orders');
-        return response()->json(['error' => 'You cannot update status of completed, cancelled or pending orders']);
-      }
-      $status= $request->validate([
-        'status'=>'required|string|in:pending,processing,shipped,completed,cancelled'
-      ]);
       
-      $order->update(['status'=>$status['status']]);
-      session()->flash('success','Order status updated successfully');
-      return response()->json(['message'=>'Order status updated successfully']);
+      $attempt = $this->orderService->updateOrderStatus($request,$order);
+      
+      return $attempt
+          ? response()->json(['message'=>'Order status updated successfully'])
+          : response()->json(['error' => 'You cannot update status of completed, cancelled or pending orders']);
     }
     //export orders to csv
     public function export() {
       // if(auth()->user()->can('manage orders')) {
       //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
       // }
-      $fileName = 'orders.csv';
-      $orders = Order::with('user')->get();
-      $headers = [
-          'Content-Type' => 'text/csv',
-          'Content-Disposition' => "attachment; filename=\"$fileName\"",
-      ];
-      $callback = function() use ($orders) {
-          $file = fopen('php://output', 'w');
-          fputcsv($file, ['ID', 'Customer', 'Total Amount', 'Status', 'Created At']);
-          foreach ($orders as $order) {
-              fputcsv($file, [
-                  $order->code,
-                  $order->user->name,
-                  $order->total,
-                  $order->status,
-                  $order->created_at,
-              ]);
+     
+      $attempt=$this->orderService->orderCsv();
 
-              }
-          fclose($file);
-         };
-      return response()->stream($callback, 200, $headers);
+      return $attempt;
     }
     //show single order details for admin
     public function singleOrder(Order $order) {
