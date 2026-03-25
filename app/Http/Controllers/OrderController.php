@@ -80,7 +80,11 @@ class OrderController extends Controller
       // if(auth()->user()->can('manage orders')) {
       //   return redirect()->route('admin.login')->with('error','Unauthorized Action');
       // }
-      $user = $order->user()->withTrashed()->first();
-      return view('orders.admin_single_order',compact('order','user'));
+      $order->load([
+        'user' => fn($q) => $q->withTrashed(),
+        'address' => fn($q) => $q->withTrashed()
+        ]);
+      // dd($order);
+      return view('orders.admin_single_order',compact('order'));
     }
 }

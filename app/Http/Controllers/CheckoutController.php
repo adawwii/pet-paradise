@@ -24,13 +24,14 @@ class CheckoutController extends Controller
     }
      //payment transaction
     public function payment(Request $request) {
-        
 
         $user=auth()->user();
         if(!$user->cart || $user->cart->cartItems->isEmpty()) {
             throw new Exception('cart is empty');
         }
         //validating shipping address
+        if(!$request->has('selected_address')){
+
         $validator = Validator::make($request->all(), [
             'street_address' => 'required|string|max:255',
             'city'           => 'required|string|max:100',
@@ -46,6 +47,10 @@ class CheckoutController extends Controller
              ],422);
          }
          $formFields=$validator->validated();
+        }
+        else {
+            $formFields = ['address_id' => $request->input('selected_address')];
+        }
          
          if($user->cannot('make orders')) {
 
@@ -82,7 +87,8 @@ class CheckoutController extends Controller
 
     //show checkout page
     public function show() {
-        $cart=auth()->user()->cart;
+        $user=auth()->user();
+        $cart=$user->cart;
         if (!$cart) {
             return redirect()->route('home')->with('error', 'Your cart is empty!');
         }
@@ -90,8 +96,18 @@ class CheckoutController extends Controller
          if($response->denied()) {
             return redirect()->route('home')->with('error',$response->message());
          }
+         $addresses=$user->addresses;
          $cart->load('cartItems.product');
-        return view('components.checkout',compact('cart'));
+        return view('components.checkout',compact('cart','addresses'));
     }
+
+    //delete address
+    public function destroyAddress($id)
+{
+    $address = auth()->user()->addresses()->findOrFail($id);
+    $address->delete();
+
+    return back()->with('success', 'Address deleted');
+}
    
 }

@@ -73,10 +73,10 @@
                             Shipping Address
                         </h3>
                         <p class="text-sm text-gray-600">
-                            {{ $order->address->street_address }}<br>
-                            {{ $order->city }}, {{ $order->address->district }}<br>
-                            Building {{ $order->address->building }},
-                            Apt {{ $order->address->apartment }}<br>
+                            {{ $order->address->street_address ?? 'DELETED' }}<br>
+                            {{ $order->address->city ?? 'DELETED' }}, {{ $order->address->district ?? 'DELETED' }}<br>
+                            Building {{ $order->address->building ?? 'DELETED' }},
+                            Apt {{ $order->address->apartment ?? 'DELETED' }}<br>
                             {{-- ZIP: {{ $order->zip }} --}}
                         </p>
                     </div>

@@ -8,7 +8,7 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">
-                Order #{{ $order->id }}
+                Order #{{ $order->code }}
             </h1>
             <p class="text-gray-500 text-sm">
                 Placed on {{ $order->created_at->format('d M Y - h:i A') }}
@@ -35,12 +35,18 @@
 
         <!-- Customer Info -->
         <div class="bg-white shadow rounded-lg p-6">
-            <h2 class="font-semibold text-gray-800 mb-4">Customer Information <span class="text-xs text-red-600">{{ $user->deleted_at ? '(Deleted User)' : '' }}</span></h2>
+            <h2 class="font-semibold text-gray-800 mb-4">Customer Information <span class="text-xs text-red-600">{{ $order->user->deleted_at ? '(Deleted User)' : '' }}</span> 
+<a href="{{ route('admin.customer.profile',$order->user->id) }}" class="inline-flex items-center align-middle p-1 text-gray-500 hover:bg-gray-100 rounded-md transition">
+    <svg xmlns="http://www.w3.org" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+    </svg>
+</a>
+</h2>
 
             <div class="space-y-2 text-sm">
-                <p><span class="font-medium">Name:</span> {{ $user->name ?? 'N/A' }}</p>
-                <p><span class="font-medium">Email:</span> {{ $user->email ?? 'N/A' }}</p>
-                <p><span class="font-medium">Phone:</span> {{ $user->phone_number ?? 'N/A' }}</p>
+                <p><span class="font-medium">Name:</span> {{ $order->user->name ?? 'N/A' }}</p>
+                <p><span class="font-medium">Email:</span> {{ $order->user->email ?? 'N/A' }}</p>
+                <p><span class="font-medium">Phone:</span> {{ $order->user->phone_number ?? 'N/A' }}</p>
             </div>
         </div>
 
@@ -49,10 +55,10 @@
             <h2 class="font-semibold text-gray-800 mb-4">Shipping Address</h2>
 
             <div class="text-sm text-gray-700 space-y-1">
-                <p>{{ $order->address->street_address }}</p>
-                <p>{{ $order->address->city }}, {{ $order->address->district }}</p>
-                <p>{{ $order->address->building }}</p>
-                <p>{{ $order->address->apartment }}</p>
+                <p>{{ $order->address->street_address ?? "DELETED" }}</p>
+                <p>{{ $order->address->city ?? "DELETED" }}, {{ $order->address->district ?? "DELETED" }}</p>
+                <p>{{ $order->address->building ?? "DELETED" }}</p>
+                <p>{{ $order->address->apartment ?? "DELETED" }}</p>
             </div>
         </div>
 
@@ -163,7 +169,7 @@
 document.getElementById('statusSelect').addEventListener('change', function () {
 
     fetch(`/admin/orders/{{ $order->id }}/status`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'

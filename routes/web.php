@@ -67,6 +67,8 @@ Route::patch('/update/cart/{cartItem}',[CartController::class,'update'])->name('
 Route::delete('/remove/cart/{cartItem}',[CartController::class,'remove'])->name('cart.remove');
 //show checkout page
 Route::get('/checkout',[CheckoutController::class,'show'])->name('checkout')->middleware(['verified','can:make orders']);
+//address delete
+Route::delete('/address/{id}', [CheckoutController::class, 'destroyAddress'])->name('address.delete');
 //procced payment
 Route::post('/payment',[CheckoutController::class,'payment'])->name('payment')->middleware(['verified','can:make orders']);
 //show single order 

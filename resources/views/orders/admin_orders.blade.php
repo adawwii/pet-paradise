@@ -79,11 +79,11 @@
                             ${{ number_format($order->total, 2) }}
                         </td>
                         <td class="px-6 py-4">
-                            {{ $order->address->building }},
-                            {{ $order->address->street_address }},
-                            {{ $order->address->district }},
-                            {{ $order->address->city }},
-                            Appartment {{ $order->address->apartment }}
+                            {{ $order->address->building ?? 'DELETED' }},
+                            {{ $order->address->street_address ?? 'DELETED' }},
+                            {{ $order->address->district ?? 'DELETED' }},
+                            {{ $order->address->city ?? 'DELETEE' }},
+                            Appartment {{ $order->address->apartment ?? 'DELETED' }}
                         </td>
                         <!-- Payment Status -->
                         <td class="px-6 py-4">

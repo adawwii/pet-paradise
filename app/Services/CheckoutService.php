@@ -35,14 +35,10 @@ class CheckoutService
             $paymentIntent=PaymentIntent::create([
                 'amount'=>$amount * 100, //cents
                 'currency'=>'usd',
-                'metadata' =>[
-                        'user_id' => $user->id,
-                        'street_address' => $formFields['street_address'],
-                        'city' => $formFields['city'],
-                        'district' => $formFields['district'],
-                        'building' => $formFields['building'],
-                        'apartment' => $formFields['apartment'],
-                    ],
+                'metadata' =>array_merge(
+                            ['user_id' => $user->id],
+                            $formFields               
+                            ),
             ]);
 
                 session([
@@ -102,6 +98,10 @@ class CheckoutService
 
         DB::transaction(function () use ($user, $paymentIntent, $amount) {
 
+            if (isset($paymentIntent->metadata->address_id)) {
+                $addressId = $paymentIntent->metadata->address_id;
+            }
+            else{
             $address = $user->addresses()->create([
                 'street_address'=>$paymentIntent->metadata->street_address,
                 'city'=>$paymentIntent->metadata->city,
@@ -109,9 +109,11 @@ class CheckoutService
                 'building'=>$paymentIntent->metadata->building,
                 'apartment'=>$paymentIntent->metadata->apartment
             ]);
+            $addressId=$address->id;
+            }
 
             $order = $user->orders()->create([
-                'address_id' => $address->id,
+                'address_id' => $addressId,
                 'total' => $amount,
                 'status' => 'processing',
                 'stripe_payment_intent_id' => $paymentIntent->id,

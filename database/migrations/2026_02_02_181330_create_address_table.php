@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('district');
             $table->string('building');
             $table->string('apartment');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

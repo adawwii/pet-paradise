@@ -41,6 +41,7 @@ class OrderService
         $orders=Order::with(['user'=>function($query){
         $query->withTrashed();
       }])
+      ->with(['address'=>fn($q)=>$q->withTrashed()])
       ->filter($request->only('search','status'))
       ->latest()
       ->paginate(8)
