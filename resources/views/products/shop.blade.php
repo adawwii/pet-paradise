@@ -28,7 +28,7 @@
 
       <!-- Category -->
       <p class="text-sm text-gray-500 mb-2">
-          <a href="/products/?tags={{ $product->category->name }}">
+          <a href="/shop/?tags={{ $product->category->name }}">
             {{ $product->category->name }}
         </a>
       </p>

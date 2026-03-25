@@ -166,7 +166,6 @@
             <a href="/" class="hover:text-orange-200">Home</a>
             <a href="{{ route('shop') }}" class="hover:text-orange-200">Shop</a>
             <a href="{{ route('category') }}" class="hover:text-orange-200">Categories</a>
-            <a href="#" class="hover:text-orange-200">Contact</a>
 
             @guest
                 <a href="{{ route('login') }}"
@@ -212,7 +211,6 @@
             <a href="/" class="hover:text-orange-200">Home</a>
             <a href="{{ route('shop') }}" class="hover:text-orange-200">Shop</a>
             <a href="{{ route('category') }}" class="hover:text-orange-200">Categories</a>
-            <a href="#" class="hover:text-orange-200">Contact</a>
 
             <hr class="border-orange-400">
 

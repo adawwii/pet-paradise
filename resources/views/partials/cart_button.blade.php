@@ -18,9 +18,11 @@
         $cartCount = auth()->user()->cart ? count(auth()->user()->cart->cartItems) : 0;
     @endphp
 
+    @if($cartCount>0)
     <span id="cart-count"
           class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
         {{ $cartCount }}
     </span>
+    @endif
 
 </a>
