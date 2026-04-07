@@ -23,9 +23,23 @@
     <h2 class="section-title">Categories</h2>
     <div class="categories">
       @foreach ($topCategories as $category)
+      @php
+        if($category->name=='Cats'){
+          $categoryImage='https://www.vets4pets.com/siteassets/species/cat/kitten/tiny-kitten-in-sunlight.jpg';
+
+        }elseif ($category->name=='Dogs') {
+          $categoryImage='https://cdn.mos.cms.futurecdn.net/BwL2586BtvBPywasXXtzwA-1000-80.jpeg';
+
+        }elseif ($category->name=='Fish') {
+          $categoryImage='https://t4.ftcdn.net/jpg/02/97/20/37/360_F_297203796_C8dL0cnQEsQ7Z3NuWR4cBpvBj09vgmPj.jpg';
+
+        }elseif ($category->name=='Birds') {
+          $categoryImage='https://d2zp5xs5cp8zlg.cloudfront.net/image-52583-800.jpg';
+        }
+      @endphp
       <a href="/shop/?tags={{ $category->name }}">
       <div class="category-card">
-        <img src="{{ asset('images/noImage.png') }}" alt="Dogs">
+        <img src="{{ $categoryImage }}" alt="{{ $category->name }}">
         <h3>{{ $category->name }}</h3>
       </div>
       </a>

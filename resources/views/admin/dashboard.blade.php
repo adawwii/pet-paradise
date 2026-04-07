@@ -4,18 +4,7 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
 
-        <!-- Top Navbar -->
-        {{-- <header class="bg-white shadow p-4 flex justify-between items-center">
-            <button id="menuBtn" class="md:hidden text-gray-700">
-                ☰
-            </button>
-
-            <h1 class="text-xl font-semibold">Admin Dashboard</h1>
-
-            <div>
-                <span class="text-gray-600">Admin</span>
-            </div>
-        </header> --}}
+        
 
         <!-- Content -->
         <main class="p-6">
@@ -34,7 +23,7 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-gray-500">Users</h3>
+                    <h3 class="text-gray-500">Customers</h3>
                     <p class="text-3xl font-bold mt-2">{{ $usersCount }}</p>
                 </div>
 

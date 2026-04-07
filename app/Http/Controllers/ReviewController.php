@@ -21,7 +21,7 @@ class ReviewController extends Controller
         //     return back()->with('error','Unauthorized action');
         // }
        $this->reviewService->addReview($request);
-        return back()->with('success','Review posted successfully!');
+        return back()->with('success','Your review has been submitted and will be published shortly.');
     }
     //employee and admin show reveiws
     public function showAdmin() {

@@ -45,7 +45,7 @@
                     @foreach($order->orderItems as $item)
                         <div class="flex items-center justify-between py-4">
                             <div class="flex items-center space-x-4">
-                                <img src="{{ $item->product->image_url ? asset('storage/').$item->product->image_url : asset('images/noImage.png') }}"
+                                <img src="{{ $item->product->image_url ? asset('storage').'/'.$item->product->image_url : asset('images/noImage.png') }}"
                                      class="w-16 h-16 rounded-lg object-cover">
 
                                 <div>
